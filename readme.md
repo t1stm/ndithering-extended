@@ -13,7 +13,7 @@
 
 An interesting observation is that the setting persists after modifying it on X11 and then switching to Wayland. I theorized [[1]](https://github.com/libvibrant/vibrantLinux/issues/27#issuecomment-2729822152) [[2]](https://www.reddit.com/r/archlinux/comments/1gx1hir/comment/mhpe2pk/?context=3) it was possible to call some shared library or interface to configure it directly in their driver, independently of the display server. And indeed, it is possible!
 
-This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes.
+This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes. These headers are synced with the proprietary releases, should work fine if you're on any of `nvidia-dkms`, `nvidia-open` or `nvidia`.
 
 **Note**: A future (and intended) way to will be through [NVML](https://developer.nvidia.com/management-library-nvml), as evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments.
 
@@ -21,9 +21,11 @@ This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-
 
 ## 🚀 Usage
 
-Grab the latest [prebuilt release](https://github.com/Tremeschin/nVibrant/releases) for your matching NVIDIA driver version, [build it yourself](#Compiling) or download from your package manager. You might need to `chmod +x nvibrant*` to mark the file as executable!
+Grab the latest [prebuilt release](https://github.com/Tremeschin/nVibrant/releases) for your matching NVIDIA driver version, [build it yourself](#-compiling) or download from your package manager. You might need to `chmod +x nvibrant*` to mark the file as executable!
 
-Vibrance levels are numbers from `-1024` and `1023` for each display. If a number is not passed for the Nth display, it will default to zero. See the examples below:
+<sup><b>Note:</b> You might need to set `nvidia_drm.modeset=1` kernel parameter, but I think it's enabled by default on recent drivers.</sup>
+
+**Inputs**: Vibrance levels are numbers from `-1024` and `1023` for each display. If a number is not passed for the Nth display, it will default to zero. See the examples below:
 
 ```sh
 # Maximum vibrance for display 0
