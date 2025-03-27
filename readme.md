@@ -5,7 +5,7 @@
 </div>
 
 > [!IMPORTANT]
-> This repository is a proof of concept that will be improved over time. The command line is simple, targeting more driver versions is WIP. Contributions are welcome, as I'm not primarily a C/C++ developer 🙂
+> This repository is a proof of concept that will be improved over time, e.g. proper CLI and more driver versions is WIP. Contributions are welcome, as I'm not primarily a C/C++ developer 🙂
 
 ## 🔥 Description
 
@@ -15,7 +15,7 @@ An interesting observation is that the setting persists after modifying it on X1
 
 This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes.
 
-**Note**: A future (and intended) way to configure this setting will be through [NVML](https://developer.nvidia.com/management-library-nvml), as evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments.
+**Note**: A future (and intended) way to will be through [NVML](https://developer.nvidia.com/management-library-nvml), as evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments.
 
 **Warn**: The binary is bound to the submodule's NVIDIA Driver Version, e.g. `570.133.07`
 
