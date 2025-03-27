@@ -7,9 +7,8 @@
 
 #include "nvkms-ioctl.h"
 #include "nvkms-api.h"
+#include "nvUnixVersion.h"
 
-// Todo: Make configurable via CLI, target different drivers, etc.
-#define DRIVER_VERSION "570.133.07"
 #define VIBRANCE_LEVEL 1023
 
 struct NvKmsIoctlParams* params;
@@ -33,8 +32,10 @@ int main(void) {
     // --------------------------------------------------------------------------------------------|
 
     // Call NVKMS_IOCTL_ALLOC_DEVICE to initialize and get a NVKMS control object
-    struct NvKmsAllocDeviceParams* allocDevice = calloc(1, sizeof(struct NvKmsAllocDeviceParams));
-    snprintf(allocDevice->request.versionString, NVKMS_NVIDIA_DRIVER_VERSION_STRING_LENGTH, DRIVER_VERSION);
+    allocDevice = calloc(1, sizeof(struct NvKmsAllocDeviceParams));
+    snprintf(allocDevice->request.versionString,
+        NVKMS_NVIDIA_DRIVER_VERSION_STRING_LENGTH,
+        NV_VERSION_STRING);
     allocDevice->request.deviceId = 0;
     allocDevice->request.sliMosaic = NV_FALSE;
     allocDevice->request.tryInferSliMosaicFromExistingDevice = NV_FALSE;
@@ -93,10 +94,10 @@ int main(void) {
             // Make the request to set digital vibrance for this monitor
             setDpyAttr = calloc(1, sizeof(struct NvKmsSetDpyAttributeParams));
             setDpyAttr->request.deviceHandle = allocDevice->reply.deviceHandle;
-            setDpyAttr->request.dispHandle = allocDevice->reply.dispHandles[gpu];
-            setDpyAttr->request.dpyId = queryConnector->reply.dpyId;
-            setDpyAttr->request.attribute = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
-            setDpyAttr->request.value = VIBRANCE_LEVEL;
+            setDpyAttr->request.dispHandle   = allocDevice->reply.dispHandles[gpu];
+            setDpyAttr->request.dpyId        = queryConnector->reply.dpyId;
+            setDpyAttr->request.attribute    = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
+            setDpyAttr->request.value        = VIBRANCE_LEVEL;
             params->cmd     = NVKMS_IOCTL_SET_DPY_ATTRIBUTE;
             params->size    = sizeof(struct NvKmsSetDpyAttributeParams);
             params->address = (NvU64) setDpyAttr;

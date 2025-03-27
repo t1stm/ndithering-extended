@@ -13,13 +13,13 @@
 
 NVIDIA GPUs have a nice feature called Digital Vibrance that increases the colors saturation of the display. The option is readily available on [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/) in Linux, but is too coupled with `libxnvctrl`. Therefore, it is "exclusive" to the X11 display server, making it unavailable on Wayland. But I don't want dull colors :^)
 
-An interesting observation is that the setting persists after modifying it on X11 and then switching to Wayland. I theorized [[1]](https://github.com/libvibrant/vibrantLinux/issues/27#issuecomment-2729822152) [[2]](https://www.reddit.com/r/archlinux/comments/1gx1hir/comment/mhpe2pk/?context=3) it was possible to make some shared library or interface calls to configure it directly in their driver, independent of the display server. And indeed, it is possible!
+An interesting observation is that the setting persists after modifying it on X11 and then switching to Wayland. I theorized [[1]](https://github.com/libvibrant/vibrantLinux/issues/27#issuecomment-2729822152) [[2]](https://www.reddit.com/r/archlinux/comments/1gx1hir/comment/mhpe2pk/?context=3) it was possible to call some shared library or interface to configure it directly in their driver, independently of the display server. And indeed, it is possible!
 
-This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) repository to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes.
+This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes.
 
 **Note**: A future (and intended) way to configure this setting will be through [NVIDIA Management Library](https://developer.nvidia.com/management-library-nvml) (NVML), as is evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments. This is a temporary workaround, or perhaps a stable way of doing it through interfacing with the kernel modules.
 
-**Warn**: The binary is bound to a single NVIDIA Driver Version, currently `570.133.07`
+**Warn**: The binary is bound to the submodule's NVIDIA Driver Version, currently `570.133.07`
 
 ## 📦 Compiling:
 
