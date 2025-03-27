@@ -1,4 +1,4 @@
-project('nvibrant', 'c',
+project('nvibrant', 'cpp',
   version: '1.0',
 )
 
@@ -15,7 +15,7 @@ nvidia_incs    = include_directories(
 )
 
 executable('nvibrant',
-  'nvibrant.c',
+  'nvibrant.cpp',
   include_directories: nvidia_incs,
   install: true
 )

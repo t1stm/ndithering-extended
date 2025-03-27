@@ -5,23 +5,45 @@
 </div>
 
 > [!IMPORTANT]
-> This repository is a proof of concept that will be improved over time. Namely, a command line interface is missing, and I'm blindly setting the maximum Digital Vibrance on _all_ displays.
->
-> Contributions are welcome, as I'm not primarily a C/C++ developer 🙂
+> This repository is a proof of concept that will be improved over time. The command line is simple, targeting more driver versions is WIP. Contributions are welcome, as I'm not primarily a C/C++ developer 🙂
 
-## 🔥 Description:
+## 🔥 Description
 
-NVIDIA GPUs have a nice feature called Digital Vibrance that increases the colors saturation of the display. The option is readily available on [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/) in Linux, but is too coupled with `libxnvctrl`. Therefore, it is "exclusive" to the X11 display server, making it unavailable on Wayland. But I don't want dull colors :^)
+**NVIDIA GPUs** have a nice feature called **Digital Vibrance** that increases the colors saturation of the display. The option is readily available on [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/) in Linux, but is too coupled with `libxnvctrl`. Therefore, it is "exclusive" to the X11 display server, making it unavailable on Wayland. But I don't want dull colors :^)
 
 An interesting observation is that the setting persists after modifying it on X11 and then switching to Wayland. I theorized [[1]](https://github.com/libvibrant/vibrantLinux/issues/27#issuecomment-2729822152) [[2]](https://www.reddit.com/r/archlinux/comments/1gx1hir/comment/mhpe2pk/?context=3) it was possible to call some shared library or interface to configure it directly in their driver, independently of the display server. And indeed, it is possible!
 
 This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes.
 
-**Note**: A future (and intended) way to configure this setting will be through [NVIDIA Management Library](https://developer.nvidia.com/management-library-nvml) (NVML), as is evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments. This is a temporary workaround, or perhaps a stable way of doing it through interfacing with the kernel modules.
+**Note**: A future (and intended) way to configure this setting will be through [NVML](https://developer.nvidia.com/management-library-nvml), as evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments.
 
-**Warn**: The binary is bound to the submodule's NVIDIA Driver Version, currently `570.133.07`
+**Warn**: The binary is bound to the submodule's NVIDIA Driver Version, e.g. `570.133.07`
 
-## 📦 Compiling:
+## 🚀 Usage
+
+Grab the latest [prebuilt release](https://github.com/Tremeschin/nVibrant/releases) for your matching NVIDIA driver version, [build it yourself](#Compiling) or download from your package manager. You might need to `chmod +x nvibrant*` to mark the file as executable!
+
+Vibrance levels are numbers from `-1024` and `1023` for each display. If a number is not passed for the Nth display, it will default to zero. See the examples below:
+
+```sh
+# Maximum vibrance for display 0
+./nvibrant 1023
+
+# Maximum vibrance for display 1
+./nvibrant 0 1023
+
+# Medium vibrance for both displays
+./nvibrant 512 512
+
+# Grayscale on all three monitors
+./nvibrant -1024 -1024 -1024
+```
+
+The order of displays should match the physical connections of the GPU, experiment with it!
+
+<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 12 hours to figure out and implement :)</sup>
+
+## 📦 Compiling
 
 Clone this repository and its submodules with:
 
@@ -29,24 +51,19 @@ Clone this repository and its submodules with:
 
 Install [Meson](https://mesonbuild.com/) and [Ninja](https://ninja-build.org/) build systems from your Distro. Alternatively, install [uv](https://docs.astral.sh/uv) and run `uv tool install meson` and `uv tool install ninja`, following any instructions for adding to PATH, and run:
 
-1. Configure: `meson build`
+1. Configure: `meson setup build`
 2. Compile: `ninja -C build`
 
-## 🚀 Usage:
+You should have the executable located at `build/nvibrant`
 
-After compiling, you should have the executable at `build/nvibrant`
-
-Running it will set the digital vibrance to 100% (value 1023) on all displays, currently. You can edit the source code and change the value at the top from `-1024` to `1023` until a CLI is implemented.
-
-<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 10 hours to figure out and implement :)</sup>
-
-## ⭐️ Future work:
+## ⭐️ Future work
 
 Integrating this work directly in [libvibrant](https://github.com/libvibrant/) would be the ideal solution, although matching the nvidia driver version could be annoying for a generalized solution. Feel free to base off this code for an upstream solution and PR, in the meantime, here's some local improvements that could be made:
 
 - Simplify the code, some lists enumerations are opaque and flag-like
 - How to target different drivers? Maybe tag checkouts automation?
-- Command Line Interface (CLI) to set custom values, ideally per display.
+- List displays and show their info on the command line
+- Make an actual CLI interface with `--help`, `--version`, etc.
 - Convert the code to C++? Easier vectors, classes, cli, configs.
 - Package the binary in many linux distros (help needed!)
 - Save the current values to restore it later.
