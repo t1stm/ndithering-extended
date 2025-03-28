@@ -44,6 +44,7 @@ def reset_dir(path: Path) -> Path:
 # Entry points
 
 def build() -> None:
+    mkdir(RELEASE)
 
     # Configure and compile cpp project
     shell(*MESON, "setup", BUILD,
