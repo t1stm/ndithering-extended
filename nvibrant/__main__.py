@@ -47,25 +47,21 @@ def build() -> None:
     reset_dir(BUILD)
     reset_dir(RELEASE)
 
-    for driver in sorted(get_tags(repo=OPEN_GPU)):
-        print(f"\n:: Building nVibrant for driver version v{driver}\n")
-        checkout_tag(repo=OPEN_GPU, tag=driver)
-        shell(*MESON, "setup", BUILD,
-            "--buildtype", "release",
-            "--reconfigure",
-        )
-        shell(*NINJA, "-C", BUILD)
+    # Configure and compile cpp project
+    shell(*MESON, "setup", BUILD,
+        "--buildtype", "release",
+        "--reconfigure")
+    shell(*NINJA, "-C", BUILD)
 
-        # Name the binary release
-        nvibrant = (BUILD/"nvibrant")
-        nvibrant.rename(RELEASE / (
-            f"nvibrant"
-            f"-linux"
-            f"-amd64"
-            f"-v{driver}"
-            f"-v{__version__}"
-            f".bin"
-        ))
+    # Name the binary release
+    nvibrant = (BUILD/"nvibrant")
+    nvibrant.rename(RELEASE / (
+        f"nvibrant"
+        f"-linux"
+        f"-amd64"
+        f"-v{__version__}"
+        f".bin"
+    ))
 
 def actions() -> None:
     for (key, value) in dict(

@@ -1,31 +1,54 @@
-#include <cstdio>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <cstdlib>
 #include <cstring>
 #include <vector>
-#include <stdexcept>
+#include <string>
+#include <fstream>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 
+// Open GPU Kernel Modules
 #include "nvkms-ioctl.h"
 #include "nvkms-api.h"
-#include "nvUnixVersion.h"
+
+// ------------------------------------------------------------------------------------------------|
+
+// NvKms ioctl calls must match the driver version
+const char* NVIDIA_DRIVER_VERSION = []() {
+
+    // Safety fallback or override with environment variable
+    if (const char* version = getenv("NVIDIA_DRIVER_VERSION"))
+        return version;
+
+    // Seems to be a common and stable path to get the information
+    if (auto file = std::ifstream("/sys/module/nvidia/version")) {
+        static std::string version;
+        std::getline(file, version);
+        return version.c_str();
+    }
+
+    printf("Could not find the current driver version at /sys/module/nvidia/version\n");
+    printf("• Run with 'NVIDIA_DRIVER_VERSION=x.y.z nvibrant' to set or force it\n");
+    exit(1);
+}();
+
+// Wrapper to populate a NvKmsIoctlParams and call ioctl for generic types
+template <typename T> int easy_nvmks_ioctl(int fd, NvU32 cmd, T* data) {
+    NvKmsIoctlParams params;
+    params.cmd     = cmd;
+    params.size    = sizeof(T);
+    params.address = (NvU64) data;
+    return ioctl(fd, NVKMS_IOCTL_IOWR, &params);
+}
 
 // ------------------------------------------------------------------------------------------------|
 
 std::vector<int> vibrance;
 
 void read_vibrance_levels(char* argv[], int argc) {
-    if (argc < 2) {
-        printf("nVibrant: Usage: %s <vibrances per display, -1024 to 1023>\n", argv[0]);
-        exit(1);
-    }
-
     for (int i=0; i<(argc - 1); i++) {
         vibrance.push_back(atoi(argv[i+1]));
 
         if (vibrance[i] < -1024 || vibrance[i] > 1023) {
-            printf("nVibrant: Vibrance level %d must be between -1024 and 1023\n", vibrance[i]);
+            printf("Vibrance level %d must be between -1024 and 1023\n", vibrance[i]);
             exit(1);
         }
     }
@@ -41,93 +64,111 @@ int get_vibrance_level(unsigned int index) {
 // ------------------------------------------------------------------------------------------------|
 
 int main(int argc, char *argv[]) {
-    NvKmsIoctlParams* params = new struct NvKmsIoctlParams();
     read_vibrance_levels(argv, argc);
-    int ioctl_retcode;
+    printf("Driver version: (%s)\n", NVIDIA_DRIVER_VERSION);
 
     // Open the nvidia-modeset file descriptor
     int modeset = open("/dev/nvidia-modeset", O_RDWR);
-
     if (modeset < 0) {
-        perror("nVibrant: Failed to open /dev/nvidia-modeset");
-        return modeset;
+        printf("Failed to open /dev/nvidia-modeset device file for ioctl calls\n");
+        printf("• Perhaps 'nvidia_drm.modeset=1' kernel parameter is missing?\n");
+        return 1;
     }
 
     // ------------------------------------------|
 
     // Initialize nvkms to get a deviceHandle, dispHandle, etc.
-    struct NvKmsAllocDeviceParams* allocDevice = new struct NvKmsAllocDeviceParams();
-    strcpy(allocDevice->request.versionString, NV_VERSION_STRING);
-    allocDevice->request.deviceId = 0; // Fixme: Will it always be zero?
-    allocDevice->request.sliMosaic = NV_FALSE;
-    allocDevice->request.tryInferSliMosaicFromExistingDevice = NV_FALSE;
-    allocDevice->request.no3d = NV_TRUE;
-    allocDevice->request.enableConsoleHotplugHandling = NV_FALSE;
-    params->cmd     = NVKMS_IOCTL_ALLOC_DEVICE;
-    params->size    = sizeof(struct NvKmsAllocDeviceParams);
-    params->address = (NvU64) allocDevice;
-    ioctl_retcode   = ioctl(modeset, NVKMS_IOCTL_IOWR, params);
-
-    // Catch and warn common errors
-    if (ioctl_retcode < 0) {
-        switch (allocDevice->reply.status) {
+    struct NvKmsAllocDeviceParams allocDevice;
+    strcpy(allocDevice.request.versionString, NVIDIA_DRIVER_VERSION);
+    allocDevice.request.deviceId = 0; // Fixme: Will it always be zero?
+    allocDevice.request.sliMosaic = NV_FALSE;
+    allocDevice.request.tryInferSliMosaicFromExistingDevice = NV_FALSE;
+    allocDevice.request.no3d = NV_TRUE;
+    allocDevice.request.enableConsoleHotplugHandling = NV_FALSE;
+    if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_ALLOC_DEVICE, &allocDevice) < 0) {
+        switch (allocDevice.reply.status) {
             case NVKMS_ALLOC_DEVICE_STATUS_VERSION_MISMATCH:
-                printf("nVibrant: Driver version mismatch, expected %s\n", NV_VERSION_STRING);
-                break;
+                printf("Driver version mismatch, maybe reboot?\n");
+                return 1;
             default:
-                printf("nVibrant: ioctl failed with error %d\n", allocDevice->reply.status);
-                break;
+                printf("AllocDevice ioctl failed\n");
+                return 1;
         }
-        return allocDevice->reply.status;
     }
 
     // ------------------------------------------|
 
+    int vibrance_index = 0;
+
     // Iterate on all GPUs (displays) in the system, querying their info
-    for (NvU32 gpu=0; gpu<allocDevice->reply.numDisps; gpu++) {
-        printf("nVibrant: GPU %d: Finding all connectors\n", gpu);
-        NvKmsQueryDispParams* queryDisp = new struct NvKmsQueryDispParams();
-        queryDisp->request.deviceHandle = allocDevice->reply.deviceHandle;
-        queryDisp->request.dispHandle   = allocDevice->reply.dispHandles[gpu];
-        params->cmd     = NVKMS_IOCTL_QUERY_DISP;
-        params->size    = sizeof(struct NvKmsQueryDispParams);
-        params->address = (NvU64) queryDisp;
-        ioctl_retcode   = ioctl(modeset, NVKMS_IOCTL_IOWR, params);
-        if (ioctl_retcode < 0) {
-            printf("nVibrant: QueryDisp ioctl failed with error %d\n", ioctl_retcode);
-            return ioctl_retcode;
+    for (NvU32 gpu=0; gpu<allocDevice.reply.numDisps; gpu++) {
+        printf("\nGPU %d:\n", gpu);
+        NvKmsQueryDispParams queryDisp;
+        queryDisp.request.deviceHandle = allocDevice.reply.deviceHandle;
+        queryDisp.request.dispHandle   = allocDevice.reply.dispHandles[gpu];
+        if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_DISP, &queryDisp) < 0) {
+            printf(" QueryDisp ioctl failed\n");
+            continue;
         }
 
         // Iterate on all physical connections of the GPU (literally, hdmi, dp, etc.)
-        for (NvU32 connector=0; connector<queryDisp->reply.numConnectors; connector++) {
-            NvKmsQueryConnectorStaticDataParams* queryConnector = new struct NvKmsQueryConnectorStaticDataParams();
-            queryConnector->request.deviceHandle    = allocDevice->reply.deviceHandle;
-            queryConnector->request.dispHandle      = allocDevice->reply.dispHandles[gpu];
-            queryConnector->request.connectorHandle = queryDisp->reply.connectorHandles[connector];
-            params->cmd     = NVKMS_IOCTL_QUERY_CONNECTOR_STATIC_DATA;
-            params->size    = sizeof(struct NvKmsQueryConnectorStaticDataParams);
-            params->address = (NvU64) queryConnector;
-            ioctl_retcode   = ioctl(modeset, NVKMS_IOCTL_IOWR, params);
-            if (ioctl_retcode < 0) {
-                printf("nVibrant: QueryConnector ioctl failed with error %d\n", ioctl_retcode);
+        for (NvU32 connector=0; connector<queryDisp.reply.numConnectors; connector++) {
+            int vibrance_level = get_vibrance_level(vibrance_index++);
+
+            // Get 'immutable' static data (such as connector type)
+            NvKmsQueryConnectorStaticDataParams staticData;
+            staticData.request.deviceHandle    = allocDevice.reply.deviceHandle;
+            staticData.request.dispHandle      = allocDevice.reply.dispHandles[gpu];
+            staticData.request.connectorHandle = queryDisp.reply.connectorHandles[connector];
+            if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_CONNECTOR_STATIC_DATA, &staticData) < 0) {
+                printf("QueryConnector ioctl failed\n");
+                continue;
+            }
+
+            // Get the 'dynamic' data (is connected?)
+            NvKmsQueryDpyDynamicDataParams dynamicData;
+            dynamicData.request.deviceHandle    = allocDevice.reply.deviceHandle;
+            dynamicData.request.dispHandle      = allocDevice.reply.dispHandles[gpu];
+            dynamicData.request.dpyId           = staticData.reply.dpyId;
+            if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_DPY_DYNAMIC_DATA, &dynamicData) < 0) {
+                printf("QueryDpy ioctl failed\n");
+                continue;
+            }
+
+            // Print basic display info
+            printf("• (%d, ", connector);
+            switch (staticData.reply.type) {
+                case NVKMS_CONNECTOR_TYPE_DP:    printf("DP  "); break;
+                case NVKMS_CONNECTOR_TYPE_VGA:   printf("VGA "); break;
+                case NVKMS_CONNECTOR_TYPE_DVI_I: printf("DVII"); break;
+                case NVKMS_CONNECTOR_TYPE_DVI_D: printf("DVID"); break;
+                case NVKMS_CONNECTOR_TYPE_ADC:   printf("ADC "); break;
+                case NVKMS_CONNECTOR_TYPE_LVDS:  printf("LVDS"); break;
+                case NVKMS_CONNECTOR_TYPE_HDMI:  printf("HDMI"); break;
+                case NVKMS_CONNECTOR_TYPE_USBC:  printf("USBC"); break;
+                case NVKMS_CONNECTOR_TYPE_DSI:   printf("DSI "); break;
+                default: break;
+            }
+            printf(") • Set Vibrance (%5d) • ", vibrance_level);
+
+            // Can't set vibrance on disconnected outputs
+            if (!dynamicData.reply.connected) {
+                printf("None\n");
                 continue;
             }
 
             // Make the request to set digital vibrance for this monitor
-            NvKmsSetDpyAttributeParams* setDpyAttr = new struct NvKmsSetDpyAttributeParams();
-            setDpyAttr->request.deviceHandle = allocDevice->reply.deviceHandle;
-            setDpyAttr->request.dispHandle   = allocDevice->reply.dispHandles[gpu];
-            setDpyAttr->request.dpyId        = queryConnector->reply.dpyId;
-            setDpyAttr->request.attribute    = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
-            setDpyAttr->request.value        = get_vibrance_level(connector);
-            params->cmd     = NVKMS_IOCTL_SET_DPY_ATTRIBUTE;
-            params->size    = sizeof(struct NvKmsSetDpyAttributeParams);
-            params->address = (NvU64) setDpyAttr;
-            ioctl_retcode   = ioctl(modeset, NVKMS_IOCTL_IOWR, params);
-            if (ioctl_retcode < 0)
+            NvKmsSetDpyAttributeParams setDpyAttr;
+            setDpyAttr.request.deviceHandle = allocDevice.reply.deviceHandle;
+            setDpyAttr.request.dispHandle   = allocDevice.reply.dispHandles[gpu];
+            setDpyAttr.request.dpyId        = staticData.reply.dpyId;
+            setDpyAttr.request.attribute    = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
+            setDpyAttr.request.value        = vibrance_level;
+            if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_SET_DPY_ATTRIBUTE, &setDpyAttr) < 0) {
+                printf("Failed\n");
                 continue;
-            printf("nVibrant: • Display %d: Set vibrance to %d\n",
-                connector, get_vibrance_level(connector));
+            }
+            printf("Success\n");
         }
     }
 
