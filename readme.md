@@ -85,16 +85,13 @@ GPU 1:
 
 ## 📦 Compiling
 
-Clone this repository and its submodules with:
+**Pre-requisites**: Have [git](https://git-scm.com/), [uv](https://docs.astral.sh/uv) and GCC Compiler installed, then run:
 
-- `git clone https://github.com/Tremeschin/nVibrant --recurse-submodules`
+- `git clone https://github.com/Tremeschin/nVibrant && cd nVibrant`
+- `git submodule update --init --recursive`
+- `uv run nvibrant-build`
 
-Install [Meson](https://mesonbuild.com/) and [Ninja](https://ninja-build.org/) build systems from your Distro. Alternatively, install [uv](https://docs.astral.sh/uv), run `uv sync`, activate the venv and run:
-
-1. Configure: `meson setup build --buildtype release`
-2. Compile: `ninja -C build`
-
-You should have the executable located at `build/nvibrant` for the submodule's driver.
+You should have the executable located at `release/nvibrant*`
 
 ## ⭐️ Future work
 
