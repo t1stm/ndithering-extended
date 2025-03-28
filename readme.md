@@ -5,7 +5,7 @@
 </div>
 
 > [!IMPORTANT]
-> This repository is a proof of concept that will be improved over time, e.g. proper CLI and more driver versions is WIP. Contributions are welcome, as I'm not primarily a C/C++ developer 🙂
+> This repository is a proof of concept that will be improved over time, e.g. proper CLI and distro packaging are WIP. Contributions are welcome, as I'm not primarily a C/C++ developer 🙂
 
 ## 🔥 Description
 
@@ -25,7 +25,7 @@ Grab the latest [prebuilt release](https://github.com/Tremeschin/nVibrant/releas
 
 <sup><b>Note:</b> You might need to set `nvidia_drm.modeset=1` kernel parameter, but I think it's enabled by default on recent drivers.</sup>
 
-**Inputs**: Vibrance levels are numbers from `-1024` and `1023` for each display. If a number is not passed for the Nth display, it will default to zero. See the examples below:
+**Inputs**: Vibrance levels are numbers from `-1024` to `1023` for each display. If a number is not passed for the Nth display, it will default to zero. See the examples below:
 
 ```sh
 # Maximum vibrance for display 0
@@ -43,7 +43,7 @@ Grab the latest [prebuilt release](https://github.com/Tremeschin/nVibrant/releas
 
 The order of displays should match the physical connections of the GPU, experiment with it!
 
-<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 12 hours to figure out and implement :)</sup>
+<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 14 hours to figure out and implement :)</sup>
 
 ## 📦 Compiling
 
@@ -53,20 +53,20 @@ Clone this repository and its submodules with:
 
 Install [Meson](https://mesonbuild.com/) and [Ninja](https://ninja-build.org/) build systems from your Distro. Alternatively, install [uv](https://docs.astral.sh/uv) and run `uv tool install meson` and `uv tool install ninja`, following any instructions for adding to PATH, and run:
 
-1. Configure: `meson setup build`
+1. Configure: `meson setup build --buildtype release`
 2. Compile: `ninja -C build`
 
-You should have the executable located at `build/nvibrant`
+You should have the executable located at `build/nvibrant` for the submodule's driver.
+
+For building multiple driver versions, you can run `uv run nvibrant-build`
 
 ## ⭐️ Future work
 
 Integrating this work directly in [libvibrant](https://github.com/libvibrant/) would be the ideal solution, although matching the nvidia driver version could be annoying for a generalized solution. Feel free to base off this code for an upstream solution and PR, in the meantime, here's some local improvements that could be made:
 
 - Simplify the code, some lists enumerations are opaque and flag-like
-- How to target different drivers? Maybe tag checkouts automation?
 - List displays and show their info on the command line
 - Make an actual CLI interface with `--help`, `--version`, etc.
-- Convert the code to C++? Easier vectors, classes, cli, configs.
 - Package the binary in many linux distros (help needed!)
 - Save the current values to restore it later.
 - Improve the Readme organization, explanations.

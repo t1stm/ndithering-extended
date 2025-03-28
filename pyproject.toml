@@ -1,0 +1,28 @@
+[project]
+name        = "nvibrant"
+description = "🟢 Nvidia Digital Vibrance on Wayland"
+authors     = [{name="Tremeschin", email="29046864+Tremeschin@users.noreply.github.com"}]
+dynamic      = ["version"]
+readme      = "readme.md"
+license     = "GPL-3.0"
+requires-python = ">=3.10"
+dependencies = [
+    "meson~=1.7.0",
+    "ninja~=1.11.1.4",
+]
+
+[project.scripts]
+nvibrant-build = "nvibrant.__main__:build"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "nvibrant/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nvibrant"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["*"]

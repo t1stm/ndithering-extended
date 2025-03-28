@@ -1,5 +1,5 @@
 project('nvibrant', 'cpp',
-  version: '1.0.0',
+  version: run_command('nvibrant/version.py', check: true).stdout().strip()
 )
 
 # Paths to nvidia sources and headers
