@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/material-extensions/vscode-material-icon-theme/refs/heads/main/icons/cuda.svg" width="210">
   <h1>nVibrant</h1>
   <p>Configure NVIDIA's Digital Vibrance on Wayland</p>
 </div>
@@ -9,7 +8,7 @@
 
 ## 🔥 Description
 
-**NVIDIA GPUs** have a nice feature called **Digital Vibrance** that increases the colors saturation of the display. The option is readily available on [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/) in Linux, but is too coupled with `libxnvctrl`. Therefore, it is "exclusive" to the X11 display server, making it unavailable on Wayland. But I don't want dull colors :^)
+**NVIDIA GPUs** have a nice feature called **Digital Vibrance** that increases the colors saturation of the display. The option is readily available on [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/) in Linux, but is too coupled with `libxnvctrl`. Therefore, it's "exclusive" to the X11 display server and unavailable on Wayland; but I paid for them pixels to glow :^)
 
 An interesting observation is that the setting persists after modifying it on X11 and then switching to Wayland. I theorized [[1]](https://github.com/libvibrant/vibrantLinux/issues/27#issuecomment-2729822152) [[2]](https://www.reddit.com/r/archlinux/comments/1gx1hir/comment/mhpe2pk/?context=3) it was possible to call some shared library or interface to configure it directly in their driver, independently of the display server. And indeed, it is possible!
 
@@ -19,15 +18,15 @@ This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-
 
 ## 🚀 Usage
 
-Grab the latest [Prebuilt Release](https://github.com/Tremeschin/nVibrant/releases), download from your **Package Manager** or [Build it Yourself](#-compiling). Remember to run `chmod +x nvibrant*` to mark the file as executable!
+Grab the latest [Prebuilt Release](https://github.com/Tremeschin/nVibrant/releases), download from your **Package Manager** or [Build it Yourself](#-compiling) to get the binary. Remember to run `chmod +x nvibrant*` to mark the file as executable!
 
 <sup><b>Note:</b> You might need to set `nvidia_drm.modeset=1` kernel parameter, but I think it's enabled by default on recent drivers.</sup>
 
 ### Basic usage
 
-**Inputs**: Vibrance Levels are numbers from `-1024` to `1023` that determines the intensity of the effect. Zero being the default for all displays at boot, `-1024` grayscale, and `1023` max saturation.
+**Inputs**: Vibrance Levels are numbers from `-1024` to `1023` that determines the intensity of the effect. Zero being the default for all displays at boot, `-1024` grayscale, and `1023` max saturation (200%).
 
-The values are passed as arguments to `nvibrant`, and the **order must match** the **physical outputs** of your GPU (not the index of the video server). For example, I have two monitors on _DisplayPort_ and _HDMI_ in a single GPU and want to set the vibrance to `512` and `1023` respectively:
+The values are passed as arguments to `nvibrant`, and the **order must match** the **physical outputs** of the output ports in your GPU (not the index of the video server). For example, I have two monitors on _DisplayPort_ and _HDMI_ in an RTX 3060, and want to set the vibrance to `512` and `1023` respectively:
 
 ```sh
 $ ./nvibrant 512 1023
@@ -43,27 +42,25 @@ GPU 0:
 • (6, DP  ) • Set Vibrance (    0) • None
 ```
 
-If a number is not passed for the Nth physical output, nvibrant will default to zero. When no argument is passed, it will effectively clear the vibrance for all outputs. `None` means the output is disconnected.
+If a value is not passed for the Nth physical output, nvibrant will default to zero. When no argument is passed, it will effectively clear the vibrance for all outputs. `None` means the output is disconnected.
 
-You might have a display only at the later ports, in which case use as:
+⚠️ You might have a display only at the later ports, in which case use as:
 
 ```sh
-$ ./nvibrant 0 0 0 0 1023
+$ ./nvibrant 0 0 0 1023
 Driver version: (570.133.07)
 
 GPU 0:
 • (0, HDMI) • Set Vibrance (    0) • None
 • (1, DP  ) • Set Vibrance (    0) • None
 • (2, DP  ) • Set Vibrance (    0) • None
-• (3, DP  ) • Set Vibrance (    0) • None
+• (3, DP  ) • Set Vibrance ( 1023) • Success
 • (4, DP  ) • Set Vibrance (    0) • None
-• (5, DP  ) • Set Vibrance ( 1023) • Success
-• (6, DP  ) • Set Vibrance (    0) • None
 ```
 
 ### Multiple Displays on Multiple GPUs
 
-If you have multiple displays on multiple GPUs, it _should_ work too: _(Feedback welcome!)_
+If you have multiple displays on multiple GPUs, it _should_ work too:
 
 ```sh
 $ ./nvibrant 0 100 512 1023
@@ -78,13 +75,13 @@ GPU 1:
 • (1, DP  ) • Set Vibrance ( 1023) • Success
 ```
 
-### Common errors
+### Common issues
 
-- If you get a _"Driver version mismatch"_ or `ioctl` errors, maybe try rebooting (if you haven't) since the last driver update. Otherwise, you can force the version with `NVIDIA_DRIVER_VERSION=x.y.z`. It must match what `/dev/nvidia-modeset` expects.
+- If you get a _"Driver version mismatch"_ or `ioctl` errors, maybe try rebooting (if you haven't) since the last driver update. Otherwise, you can force the version with `NVIDIA_DRIVER_VERSION=x.y.z`. It must match what `/dev/nvidia-modeset` expects and is currently loaded in ther kernel.
 
-- Albeit unlikely™, if NVIDIA changes the order of the enum items in the driver, nVibrant might not work correctly.
+- It's possible that nVibrant may fail on future or older drivers due to differences between the internal structs and enums in the latest `nvkms` headers. Please report any issues you encounter!
 
-<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 14 hours to figure out and implement :)</sup>
+<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 16 hours to figure out and implement :)</sup>
 
 ## 📦 Compiling
 
