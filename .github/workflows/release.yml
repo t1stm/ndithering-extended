@@ -5,12 +5,13 @@ on:
 jobs:
   main:
     name: Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
