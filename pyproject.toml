@@ -12,7 +12,8 @@ dependencies = [
 ]
 
 [project.scripts]
-nvibrant-build = "nvibrant.__main__:build"
+nvibrant-actions = "nvibrant.__main__:actions"
+nvibrant-build   = "nvibrant.__main__:build"
 
 [build-system]
 requires = ["hatchling"]

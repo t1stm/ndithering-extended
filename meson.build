@@ -15,7 +15,7 @@ nvidia_incs    = include_directories(
 )
 
 executable('nvibrant',
-  'nvibrant.cpp',
+  'nvibrant/main.cpp',
   include_directories: nvidia_incs,
   install: true
 )

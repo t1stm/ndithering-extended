@@ -1,0 +1,38 @@
+name: release
+on:
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: Release
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Get options
+        run: uv run nvibrant-actions >> $GITHUB_ENV
+        shell: bash
+
+      - name: Compile
+        run: uv run nvibrant-build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: release/*
+
+      # - name: Create release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     tag_name: v${{env.GHA_VERSION}}
+      #     name: Release v${{env.GHA_VERSION}}
+      #     files: release/*
+      #   env:
+      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

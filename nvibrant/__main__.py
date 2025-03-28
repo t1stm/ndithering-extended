@@ -66,3 +66,9 @@ def build() -> None:
             f"-v{__version__}"
             f".bin"
         ))
+
+def actions() -> None:
+    for (key, value) in dict(
+        GHA_VERSION=__version__,
+    ).items():
+        print(f"{key}={value}")
