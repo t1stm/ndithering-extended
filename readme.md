@@ -46,9 +46,11 @@ You should have the executable located at `release/nvibrant*`
 
 **Inputs**: Vibrance Levels are numbers from `-1024` to `1023` that determines the intensity of the effect. Zero being the "no effect" (default at boot), `-1024` grayscale, and `1023` max saturation (200%)
 
-The values are passed as arguments to `nvibrant`, matching the **order of physical ports** in your GPU (not the index of the video server). For example, I have two monitors on HDMI and DisplayPort in an RTX 3060 first two ports, to set vibrance to `512` and `1023` respectively I would run:
+The values are passed as arguments to `nvibrant`'s binary, matching the **order of physical ports** in your GPU (not the index of the video server). For example, I have two monitors on HDMI and DisplayPort in an RTX 3060 first two ports, to set vibrance to `512` and `1023`, respectively, I would run:
 
 ```sh
+# Will be './nvibrant-linux-amd64-v1.0.2.bin' instead of 'nvibrant'
+# if you're using the prebuilt binaries from the releases page!
 $ nvibrant 512 1023
 
 GPU 0:
