@@ -12,25 +12,42 @@
 
 An interesting observation is that the setting persists after modifying it on X11 and then switching to Wayland. I theorized [[1]](https://github.com/libvibrant/vibrantLinux/issues/27#issuecomment-2729822152) [[2]](https://www.reddit.com/r/archlinux/comments/1gx1hir/comment/mhpe2pk/?context=3) it was possible to call some shared library or interface to configure it directly in their driver, independently of the display server. And indeed, it is possible!
 
-This repository uses `nvidia-modeset` and `nvkms` headers found at [NVIDIA/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes. These headers are synced with the proprietary releases, should work fine if you're on any of `nvidia-dkms`, `nvidia-open` or `nvidia`.
+This repository uses `nvidia-modeset` and `nvkms` headers found at [nvidia/open-gpu-kernel-modules](https://github.com/NVIDIA/open-gpu-kernel-modules/) to make [ioctl](https://en.wikipedia.org/wiki/Ioctl) calls in the `/dev/nvidia-modeset` device for configuring display attributes. These headers are synced with the proprietary releases, should work fine if you're on any of `nvidia-dkms`, `nvidia-open` or `nvidia`
 
-**Note**: A future (and intended) way to will be through [NVML](https://developer.nvidia.com/management-library-nvml), as evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments.
+**Note**: A future (and intended) way to will be through [NVML](https://developer.nvidia.com/management-library-nvml), as evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments
+
+## 📦 Installation
+
+There's multiple ways to get `nvibrant`:
+
+### 1. Package manager
+
+Help me by packaging it for your distro, get in touch and I'll add it here!
+
+### 2. Prebuilt binaries
+
+You can download the latest builds made by GitHub Actions in the [Releases](https://github.com/Tremeschin/nVibrant/releases) page
+
+- Remember to run `chmod +x nvibrant*` to mark the file as executable!
+
+### 3. Build it yourself
+
+**Pre-requisites**: Have [git](https://git-scm.com/), [uv](https://docs.astral.sh/uv) and GCC Compilers installed, then run:
+
+- `git clone https://github.com/Tremeschin/nVibrant && cd nVibrant`
+- `git submodule update --init --recursive`
+- `uv run nvibrant-build`
+
+You should have the executable located at `release/nvibrant*`
 
 ## 🚀 Usage
 
-Grab the latest [Prebuilt Release](https://github.com/Tremeschin/nVibrant/releases), download from your **Package Manager** or [Build it Yourself](#-compiling) to get the binary. Remember to run `chmod +x nvibrant*` to mark the file as executable!
+**Inputs**: Vibrance Levels are numbers from `-1024` to `1023` that determines the intensity of the effect. Zero being the "no effect" (default at boot), `-1024` grayscale, and `1023` max saturation (200%)
 
-<sup><b>Note:</b> You might need to set `nvidia_drm.modeset=1` kernel parameter, but I think it's enabled by default on recent drivers.</sup>
-
-### Basic usage
-
-**Inputs**: Vibrance Levels are numbers from `-1024` to `1023` that determines the intensity of the effect. Zero being the default for all displays at boot, `-1024` grayscale, and `1023` max saturation (200%).
-
-The values are passed as arguments to `nvibrant`, and the **order must match** the **physical outputs** of the output ports in your GPU (not the index of the video server). For example, I have two monitors on _DisplayPort_ and _HDMI_ in an RTX 3060, and want to set the vibrance to `512` and `1023` respectively:
+The values are passed as arguments to `nvibrant`, matching the **order of physical ports** in your GPU (not the index of the video server). For example, I have two monitors on HDMI and DisplayPort in an RTX 3060 first two ports, to set vibrance to `512` and `1023` respectively I would run:
 
 ```sh
-$ ./nvibrant 512 1023
-Driver version: (570.133.07)
+$ nvibrant 512 1023
 
 GPU 0:
 • (0, HDMI) • Set Vibrance (  512) • Success
@@ -42,13 +59,14 @@ GPU 0:
 • (6, DP  ) • Set Vibrance (    0) • None
 ```
 
-If a value is not passed for the Nth physical output, nvibrant will default to zero. When no argument is passed, it will effectively clear the vibrance for all outputs. `None` means the output is disconnected.
+<sup><b>Note:</b> You might need to set `nvidia_drm.modeset=1` kernel parameter, but I think it's enabled by default on recent drivers.</sup>
 
-⚠️ You might have a display only at the later ports, in which case use as:
+If a value is not passed for the Nth physical output, nvibrant will default to zero. When no argument is passed, it will effectively clear the vibrance for all outputs. `None` means the output is disconnected
+
+✅ You might have a display at the later ports, in which case use as:
 
 ```sh
-$ ./nvibrant 0 0 0 1023
-Driver version: (570.133.07)
+$ nvibrant 0 0 0 1023
 
 GPU 0:
 • (0, HDMI) • Set Vibrance (    0) • None
@@ -63,8 +81,8 @@ GPU 0:
 If you have multiple displays on multiple GPUs, it _should_ work too:
 
 ```sh
-$ ./nvibrant 0 100 512 1023
-Driver version: (570.133.07)
+# Fictional example, feedback welcome!
+$ nvibrant 0 100 512 1023
 
 GPU 0:
 • (0, HDMI) • Set Vibrance (    0) • Success
@@ -83,23 +101,14 @@ GPU 1:
 
 <sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 16 hours to figure out and implement :)</sup>
 
-## 📦 Compiling
-
-**Pre-requisites**: Have [git](https://git-scm.com/), [uv](https://docs.astral.sh/uv) and GCC Compiler installed, then run:
-
-- `git clone https://github.com/Tremeschin/nVibrant && cd nVibrant`
-- `git submodule update --init --recursive`
-- `uv run nvibrant-build`
-
-You should have the executable located at `release/nvibrant*`
-
 ## ⭐️ Future work
 
 Integrating this work directly in [libvibrant](https://github.com/libvibrant/) would be the ideal solution, although matching the nvidia driver version could be annoying for a generalized solution. Feel free to base off this code for an upstream solution and PR, in the meantime, here's some local improvements that could be made:
 
-- Make an actual CLI interface with `--help`, `--version`, etc.
 - Package the binary in many linux distros (help needed!)
-- Save the current values to restore it later.
+- Save the current values to restore it later
+- Add support for other Display Attributes (Dithering et al.)
+- Make an actual CLI interface with `--help`, `--version`, etc.
 - I am _probably_ not doing safe-C code or mallocs right :^)
 
 Contributions are welcome if you are more C/C++ savy than me! 🙂
