@@ -42,6 +42,8 @@ You should have the executable located at `release/nvibrant*`
 
 ## 🚀 Usage
 
+> See the [Common Issues](#common-issues) section for any problems • And here for [Autostarting](#automatically-running-on-login) it on login!
+
 **Inputs**: Vibrance Levels are numbers from `-1024` to `1023` that determines the intensity of the effect. Zero being the "no effect" (default at boot), `-1024` grayscale, and `1023` max saturation (200%)
 
 The values are passed as arguments to `nvibrant`, matching the **order of physical ports** in your GPU (not the index of the video server). For example, I have two monitors on HDMI and DisplayPort in an RTX 3060 first two ports, to set vibrance to `512` and `1023` respectively I would run:
@@ -93,7 +95,49 @@ GPU 1:
 • (1, DP  ) • Set Vibrance ( 1023) • Success
 ```
 
-### Common issues
+### Automatically Running on Login
+
+You can rename and place the binary at `~/.local/bin/nvibrant` (or find the distro's one by running `which nvibrant`) and write a quick Desktop Entry, Systemd Service or other methods to run it on login:
+
+<b>1. Desktop Autostart</b>: Should work on GNOME, KDE, Xfce, etc, maybe not WMs
+
+Create a file at `~/.config/autostart/nvibrant.desktop` with the content:
+
+```ini
+[Desktop Entry]
+Type=Application
+Name=nVibrant
+Exec=/home/tremeschin/.local/bin/nvibrant 1023 1023
+X-GNOME-Autostart-enabled=true
+NoDisplay=true
+```
+
+Do replace `tremeschin` with your username!
+
+<b>2. Systemd Service</b>: Works everywhere if you use systemd (very likely)
+
+Create a file at `~/.config/systemd/user/nvibrant.service` with the content:
+
+```ini
+[Unit]
+Description=Set NVIDIA Vibrance
+After=graphical.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/nvibrant 1023 1023
+
+[Install]
+WantedBy=default.target
+```
+
+Then run `systemctl --user enable nvibrant.service` to enable it on login, add `--now` for immediate effect
+
+<b>3. Window Manager</b>: Search for your WM's autostart method in the configs
+
+### Common Issues
+
+Please [report]((https://github.com/Tremeschin/nVibrant/issues)) unknown or unlisted issues to be added here!
 
 - If you get a _"Driver version mismatch"_ or `ioctl` errors, maybe try rebooting (if you haven't) since the last driver update. Otherwise, you can force the version with `NVIDIA_DRIVER_VERSION=x.y.z`. It must match what `/dev/nvidia-modeset` expects and is currently loaded in ther kernel.
 
@@ -101,7 +145,7 @@ GPU 1:
 
 <sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 16 hours to figure out and implement :)</sup>
 
-## ⭐️ Future work
+## ⭐️ Future Work
 
 Integrating this work directly in [libvibrant](https://github.com/libvibrant/) would be the ideal solution, although matching the nvidia driver version could be annoying for a generalized solution. Feel free to base off this code for an upstream solution and PR, in the meantime, here's some local improvements that could be made:
 
