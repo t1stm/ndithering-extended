@@ -137,7 +137,7 @@ Then run `systemctl --user enable nvibrant.service` to enable it on login, add `
 
 ### Common Issues
 
-Please [report]((https://github.com/Tremeschin/nVibrant/issues)) unknown or unlisted issues to be added here!
+Please [report](https://github.com/Tremeschin/nVibrant/issues) unknown or unlisted issues to be added here!
 
 - If you get a _"Driver version mismatch"_ or `ioctl` errors, maybe try rebooting (if you haven't) since the last driver update. Otherwise, you can force the version with `NVIDIA_DRIVER_VERSION=x.y.z`. It must match what `/dev/nvidia-modeset` expects and is currently loaded in ther kernel.
 
