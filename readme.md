@@ -8,7 +8,7 @@
 
 ## 🔥 Description
 
-**NVIDIA GPUs** have a nice feature called **Digital Vibrance** that increases the colors saturation of the display. The option is readily available on [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/) in Linux, but is too coupled with `libxnvctrl`. Therefore, it's "exclusive" to the X11 display server and unavailable on Wayland; but I paid for them pixels to glow :^)
+**NVIDIA GPUs** have a nice feature called **Digital Vibrance** that increases the colors saturation of the display. The option is readily available on [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/) in Linux, but is too coupled with `libxnvctrl`. Therefore, it's "exclusive" to the X11 display server and unavailable on Wayland; but I paid for my pixels to glow :^)
 
 An interesting observation is that the setting persists after modifying it on X11 and then switching to Wayland. I theorized [[1]](https://github.com/libvibrant/vibrantLinux/issues/27#issuecomment-2729822152) [[2]](https://www.reddit.com/r/archlinux/comments/1gx1hir/comment/mhpe2pk/?context=3) it was possible to call some shared library or interface to configure it directly in their driver, independently of the display server. And indeed, it is possible!
 
