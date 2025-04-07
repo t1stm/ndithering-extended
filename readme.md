@@ -18,11 +18,53 @@ This repository uses `nvidia-modeset` and `nvkms` headers found at [nvidia/open-
 
 ## 📦 Installation
 
-There's multiple ways to get `nvibrant`:
+There's multiple ways to get nvibrant:
 
 ### 1. Package manager
 
-Help me by packaging it for your distro, get in touch and I'll add it here!
+You can install from your distro's package manager, if available:
+
+<table align="center">
+  <tr>
+    <th></th>
+    <th>Distro</th>
+    <th>Installation</th>
+    <th>Maintainer</th>
+  </tr>
+
+  <!-- Arch Linux -->
+  <tr>
+    <td>
+      <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/refs/heads/master/images/svg/arch_linux.svg" width="64">
+    </td>
+    <td>
+      Arch Linux
+    </td>
+    <td>
+      Install the <a href="https://aur.archlinux.org/packages/nvibrant-bin"><code>nvibrant-bin</code></a> AUR package:
+      <ul>
+        <li><code><a href="https://github.com/Morganamilo/paru">paru</a> -Syu nvibrant-bin</code></li>
+        <li><code><a href="https://github.com/Jguer/yay">yay</a> -Syu nvibrant-bin</code></li>
+      </ul>
+    </td>
+    <td>
+      <a href="https://github.com/Incognitux">@Incognitux</a>
+    </td>
+  </tr>
+
+  <!-- Add yours -->
+  <tr>
+    <td>...</td>
+    <td>...</td>
+    <td><i>Help me by packaging for your distro!</i></td>
+    <td>You 🙂</td>
+  </tr>
+</table>
+
+<div align="center">
+  <sup>❤️ Thanks to all package maintainers for your work! ❤️</sup>
+</div>
+
 
 ### 2. Prebuilt binaries
 
