@@ -1,7 +1,7 @@
-from pathlib import Path
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 from nvibrant import __version__
 
@@ -46,21 +46,27 @@ def reset_dir(path: Path) -> Path:
 def build() -> None:
     mkdir(RELEASE)
 
-    # Configure and compile cpp project
-    shell(*MESON, "setup", BUILD,
-        "--buildtype", "release",
-        "--reconfigure")
-    shell(*NINJA, "-C", BUILD)
+    # Internal structs may differ between versions,
+    # compile the project for all nvidia drivers
+    for driver in reversed(get_tags(OPEN_GPU)):
+        checkout_tag(OPEN_GPU, driver)
 
-    # Name the binary release
-    nvibrant = (BUILD/"nvibrant")
-    nvibrant.rename(RELEASE / (
-        f"nvibrant"
-        f"-linux"
-        f"-amd64"
-        f"-v{__version__}"
-        f".bin"
-    ))
+        # Configure and compile cpp project
+        shell(*MESON, "setup", BUILD,
+            "--buildtype", "release",
+            "--reconfigure")
+        shell(*NINJA, "-C", BUILD)
+
+        # Name the binary release
+        nvibrant = (BUILD/"nvibrant")
+        nvibrant.rename(RELEASE / (
+            f"nvibrant"
+            f"-linux"
+            f"-amd64"
+            f"-{driver}"
+            f"-v{__version__}"
+            f".bin"
+        ))
 
 def actions() -> None:
     for (key, value) in dict(

@@ -78,9 +78,10 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------|
 
     // Initialize nvkms to get a deviceHandle, dispHandle, etc.
-    struct NvKmsAllocDeviceParams allocDevice;
+    // Note: request.deviceId was an NvU32 and changed to a struct NvKmsDeviceId in driver
+    //   version >=575.51.02, writing zeros covers both cases without extra complexity
+    struct NvKmsAllocDeviceParams allocDevice = {0};
     strcpy(allocDevice.request.versionString, NVIDIA_DRIVER_VERSION);
-    allocDevice.request.deviceId = 0; // Fixme: Will it always be zero?
     allocDevice.request.sliMosaic = NV_FALSE;
     allocDevice.request.tryInferSliMosaicFromExistingDevice = NV_FALSE;
     allocDevice.request.no3d = NV_TRUE;
