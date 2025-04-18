@@ -2,10 +2,10 @@
 name        = "nvibrant"
 description = "🟢 Nvidia Digital Vibrance on Wayland"
 authors     = [{name="Tremeschin", email="29046864+Tremeschin@users.noreply.github.com"}]
-dynamic      = ["version"]
+dynamic     = ["version"]
 readme      = "readme.md"
 license     = "GPL-3.0"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
     "meson~=1.7.0",
     "ninja~=1.11.1.4",
@@ -14,6 +14,7 @@ dependencies = [
 [project.scripts]
 nvibrant-actions = "nvibrant.__main__:actions"
 nvibrant-build   = "nvibrant.__main__:build"
+nvibrant         = "nvibrant.__main__:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -27,3 +28,6 @@ packages = ["nvibrant"]
 
 [tool.hatch.build.targets.sdist]
 exclude = ["*"]
+
+[tool.hatch.build]
+exclude = ["main.cpp"]

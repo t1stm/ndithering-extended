@@ -3,7 +3,7 @@ project('nvibrant', 'cpp',
 )
 
 # Paths to nvidia sources and headers
-nvidia_src     = 'open-gpu-kernel-modules/src'
+nvidia_src     = 'open-gpu/src'
 nvidia_modeset = join_paths(nvidia_src, 'nvidia-modeset')
 nvidia_kernel  = join_paths(nvidia_src, 'kernel-open')
 nvidia_incs    = include_directories(

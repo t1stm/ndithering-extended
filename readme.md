@@ -66,13 +66,42 @@ You can install from your distro's package manager, if available:
 </div>
 
 
-### 2. Prebuilt binaries
+### 2. PyPI Package
+
+This method automatically choses the right binary for your driver version, the most convenient.
+
+Install the [nvibrant](https://pypi.org/project/nvibrant/) package with any `pip` compatible tool:
+
+```sh
+# Note: You might need to use 'pip3', or
+# 'python -m pip', or 'python3 -m pip'.
+pip install nvibrant
+```
+
+Then run it with::
+
+```sh
+nvibrant 512 1023
+```
+
+Alternatively, install [uv](https://docs.astral.sh/uv/) and use it as a [tool](https://docs.astral.sh/uv/concepts/tools/), or run directly with:
+
+```sh
+# Always uses latest version
+uvx nvibrant (args)
+```
+
+<b>Note:</b> Using `uvx` is highly recommended, it installs at `~/.local/share/uv` and `~/.cache/uv`.
+
+
+### 3. Prebuilt binaries
 
 You can download the latest builds made by GitHub Actions in the [Releases](https://github.com/Tremeschin/nVibrant/releases) page
 
-- Remember to run `chmod +x nvibrant*` to mark the file as executable!
+- Remember to run `chmod +x nvibrant*` to mark non tar.gz files as executable!
 
-### 3. Build it yourself
+
+### 4. Build it yourself
 
 **Pre-requisites**: Have [git](https://git-scm.com/), [uv](https://docs.astral.sh/uv) and GCC Compilers installed, then run:
 
@@ -80,7 +109,11 @@ You can download the latest builds made by GitHub Actions in the [Releases](http
 - `git submodule update --init --recursive`
 - `uv run nvibrant-build`
 
-You should have the executable located at `release/nvibrant*`
+You should have the executables for all driver versions located at `nvibrant/resources/*.bin`, then:
+
+- Either run any compiled executable directly, ideally matching your driver version,
+- Install with `pip install .` to have `nvibrant` available in the user site packages
+- Directly run as `uv run nvibrant (args)` to handle all of that and python for you
 
 ## 🚀 Usage
 
