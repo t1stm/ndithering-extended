@@ -6,6 +6,8 @@ jobs:
   main:
     name: Release
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
