@@ -191,6 +191,19 @@ NoDisplay=true
 
 Do replace `tremeschin` with your username!
 
+Or you can also use [uv](https://docs.astral.sh/uv/) to always grab latest [PyPI](https://pypi.org/project/nvibrant/), in case of driver updates:
+
+```ini
+[Desktop Entry]
+Type=Application
+Name=nVibrant
+Exec=uvx nvibrant 1023 1023
+X-GNOME-Autostart-enabled=true
+NoDisplay=true
+```
+
+Or pin it to a specific version as `uvx nvibrant==1.0.3 (args)`, so it's more secure.
+
 <b>2. Systemd Service</b>: Works everywhere if you use systemd (very likely)
 
 Create a file at `~/.config/systemd/user/nvibrant.service` with the content:
@@ -208,7 +221,9 @@ ExecStart=%h/.local/bin/nvibrant 1023 1023
 WantedBy=default.target
 ```
 
-Then run `systemctl --user enable nvibrant.service` to enable it on login, add `--now` for immediate effect
+Then run `systemctl --user enable nvibrant.service` to enable it on login, add `--now` for immediate effect.
+
+Using `uvx` could work too per last sections, not sure of the behavior.
 
 <b>3. Window Manager</b>: Search for your WM's autostart method in the configs
 
@@ -216,7 +231,7 @@ Then run `systemctl --user enable nvibrant.service` to enable it on login, add `
 
 Please [report](https://github.com/Tremeschin/nVibrant/issues) unknown or unlisted issues to be added here!
 
-- If you get a _"Driver version mismatch"_ or `ioctl` errors, maybe try rebooting (if you haven't) since the last driver update. Otherwise, you can force the version with `NVIDIA_DRIVER_VERSION=x.y.z`. It must match what `/dev/nvidia-modeset` expects and is currently loaded in ther kernel.
+- If you get a _"Driver version mismatch"_ or `ioctl` errors, maybe try rebooting (if you haven't) since the last driver update. Otherwise, you can force the version with `NVIDIA_DRIVER_VERSION=x.y.z`. It must match what `/dev/nvidia-modeset` expects and is currently loaded in the kernel.
 
 - It's possible that nVibrant may fail on future or older drivers due to differences between the internal structs and enums in the latest `nvkms` headers. Please report any issues you encounter!
 
