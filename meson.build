@@ -1,6 +1,4 @@
-project('nvibrant', 'cpp',
-  version: run_command('nvibrant/version.py', check: true).stdout().strip()
-)
+project('nvibrant', 'cpp', version: '1.0.0')
 
 # Paths to nvidia sources and headers
 nvidia_src     = 'open-gpu/src'

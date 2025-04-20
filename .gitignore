@@ -1,4 +1,5 @@
-build
-release
-nvibrant/resources
 *.pyc
+
+# Prebuilt binaries
+nvibrant/resources
+build

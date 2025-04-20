@@ -1,3 +1,6 @@
+[tool.hatch.version]
+path = "nvibrant/version.py"
+
 [project]
 name        = "nvibrant"
 description = "🟢 Nvidia Digital Vibrance on Wayland"
@@ -6,29 +9,28 @@ dynamic     = ["version"]
 readme      = "readme.md"
 license     = "GPL-3.0"
 requires-python = ">=3.9"
-dependencies = [
-    "meson~=1.7.0",
-    "ninja~=1.11.1.4",
-]
+dependencies = []
 
 [project.scripts]
-nvibrant-actions = "nvibrant.__main__:actions"
-nvibrant-build   = "nvibrant.__main__:build"
-nvibrant         = "nvibrant.__main__:main"
+nvibrant = "nvibrant.__main__:main"
+
+[tool.uv]
+dev-dependencies = [
+    "meson~=1.7.2",
+    "ninja~=1.11.1.4",
+]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.hatch.version]
-path = "nvibrant/version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["nvibrant"]
 ignore-vcs = true
 
 [tool.hatch.build.targets.sdist]
-exclude = ["*"]
+exclude = ["open-gpu"]
+ignore-vcs = true
 
 [tool.hatch.build]
 exclude = ["main.cpp"]
