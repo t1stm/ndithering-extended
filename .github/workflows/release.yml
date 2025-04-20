@@ -28,8 +28,8 @@ jobs:
       - name: Build wheel
         run: uv build --wheel -o dist
 
-      # - name: Publish to PyPI
-      #   run: uv publish dist/*.whl
+      - name: Publish to PyPI
+        run: uv publish dist/*.whl
 
       - name: Compress binaries
         run: |
@@ -43,11 +43,11 @@ jobs:
           name: dist
           path: dist/*
 
-      # - name: Create release
-      #   uses: softprops/action-gh-release@v2
-      #   with:
-      #     name: Release v${{env.GHA_VERSION}}
-      #     tag_name: v${{env.GHA_VERSION}}
-      #     files: |
-      #       dist/*.whl
-      #       dist/*.tar.gz
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release v${{env.GHA_VERSION}}
+          tag_name: v${{env.GHA_VERSION}}
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
