@@ -1,38 +1,39 @@
 import sys
 
 from nvibrant import (
-    RESOURCES,
     __version__,
-    current_driver,
+    get_best,
+    get_driver,
     shell,
 )
 
 
 def main() -> None:
-    driver = current_driver()
-    nvibrant = RESOURCES / (
-        f"nvibrant"
-        f"-linux"
-        f"-amd64"
-        f"-{driver}"
-        f"-v{__version__}"
-        f".bin"
-    )
+    (version, nvibrant) = get_best()
+    current = get_driver()
 
-    if not nvibrant.exists():
-        print("Error: No suitable nvibrant binary found on bundled files, tried looking for:")
-        print(f"• {nvibrant}")
-        print()
-        print("Maybe there's a newer version available supporting your driver?")
-        print("• GitHub: https://github.com/Tremeschin/nVibrant")
-        print("• PyPI: https://pypi.org/project/nvibrant/")
-        print("• System update on your package manager")
+    # Ensure executable file and pass incoming argv
+    call = shell("chmod", "+x", nvibrant, echo=False)
+    call = shell(nvibrant, *sys.argv[1:], echo=False)
+
+    if (call.returncode != 0):
+        if (version != current):
+            print()
+            print("-"*80)
+            print()
+            print(f"Note: This version v{__version__} of nvibrant doesn't bundle exact binaries for your")
+            print("      driver (1); the closest previous version (2) was used but failed")
+            print()
+            print(f"• (1) Current: {current}")
+            print(f"• (2) Closest: {version}")
+            print()
+            print("Maybe there's a newer version available supporting your driver?")
+            print("• GitHub: https://github.com/Tremeschin/nVibrant")
+            print("• PyPI: https://pypi.org/project/nvibrant/")
+            print("• System update on your package manager")
+            print()
+            print("You can ignore this if the error is about usage and not ioctl.")
         sys.exit(1)
-
-    # Ensure is executable and inject incoming argv
-    shell("chmod", "+x", nvibrant, echo=False)
-    shell(nvibrant, *sys.argv[1:], echo=False)
-
 
 if (__name__ == "__main__"):
     main()

@@ -2,7 +2,10 @@ import os
 import shutil
 import subprocess
 import sys
+from functools import cache
 from pathlib import Path
+
+from packaging.version import Version
 
 from nvibrant.version import __version__
 
@@ -51,16 +54,42 @@ def rsdir(path: Path) -> Path:
 
 # # Drivers
 
-def current_driver() -> str:
+@cache
+def get_driver() -> Version:
+    variable: str = "NVIDIA_DRIVER_VERSION"
 
     # Safety fallback or override with environment variable
-    if (force := os.getenv("NVIDIA_DRIVER_VERSION")):
-        return force
+    if (force := os.getenv(variable)):
+        return Version(force)
 
     # Seems to be a common and stable path to get the information
     elif (file := Path("/sys/module/nvidia/version")).exists():
-        return file.read_text("utf8").strip()
+        return Version(file.read_text("utf8").strip())
 
-    print("Could not find the current driver version at /sys/module/nvidia/version")
-    print("• Run with 'NVIDIA_DRIVER_VERSION=x.y.z nvibrant' to set or force it")
+    print("Could not find the current driver version in /sys/module/nvidia/version")
+    print(f"• Run with '{variable}=x.y.z nvibrant' to set or force it")
     sys.exit(1)
+
+@cache
+def get_versions() -> dict[Version, Path]:
+    """Compiled binary versions to their paths"""
+    versions = dict()
+
+    # eg "nvibrant-linux-amd64-515.43.04-v1.0.4.bin"
+    for file in RESOURCES.glob("*.bin"):
+        version = Version(file.stem.split("-")[3])
+        versions[version] = file
+
+    return versions
+
+def get_best() -> tuple[Version, Path]:
+    """
+    Get the highest compiled version that is (or should be) compatible with the
+    current driver. Mismatches have a good chance of working even across major
+    releases, this makes it so that patch bumps don't need a new build every
+    time. You can't win if you don't play otherwise, right?
+    """
+    options = get_versions()
+    current = get_driver()
+    optimal = max(x for x in options if x <= current)
+    return (optimal, options[optimal])

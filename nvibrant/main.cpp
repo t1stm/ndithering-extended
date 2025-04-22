@@ -15,7 +15,7 @@
 const char* NVIDIA_DRIVER_VERSION = []() {
 
     // Safety fallback or override with environment variable
-    if (const char* version = getenv("NVIDIA_DRIVER_VERSION"))
+    if (const char* version = getenv("NVIDIA_DRIVER_VERSION_CPP"))
         return version;
 
     // Seems to be a common and stable path to get the information
@@ -25,8 +25,8 @@ const char* NVIDIA_DRIVER_VERSION = []() {
         return version.c_str();
     }
 
-    printf("Could not find the current driver version at /sys/module/nvidia/version\n");
-    printf("• Run with 'NVIDIA_DRIVER_VERSION=x.y.z nvibrant' to set or force it\n");
+    printf("Could not find the current driver version from /sys/module/nvidia/version\n");
+    printf("• Run with 'NVIDIA_DRIVER_VERSION_CPP=x.y.z nvibrant' to set or force it\n");
     exit(1);
 }();
 
