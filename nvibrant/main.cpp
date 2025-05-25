@@ -30,6 +30,13 @@ const char* NVIDIA_DRIVER_VERSION = []() {
     exit(1);
 }();
 
+// Nth GPU index to allocate device handle
+const int NVIDIA_GPU = []() {
+    if (const char* num = getenv("NVIDIA_GPU"))
+        return atoi(num);
+    return 0;
+}();
+
 // Wrapper to populate a NvKmsIoctlParams and call ioctl for generic types
 template <typename T> int easy_nvmks_ioctl(int fd, NvU32 cmd, T* data) {
     NvKmsIoctlParams params;
@@ -78,9 +85,9 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------|
 
     // Initialize nvkms to get a deviceHandle, dispHandle, etc.
-    // Note: request.deviceId was an NvU32 and changed to a struct NvKmsDeviceId in driver
-    //   version >=575.51.02, writing zeros covers both cases without extra complexity
-    struct NvKmsAllocDeviceParams allocDevice = {0};
+    struct NvKmsAllocDeviceParams allocDevice;
+    memset(&allocDevice, 0, sizeof(allocDevice));
+    memcpy(&allocDevice.request.deviceId, &NVIDIA_GPU, sizeof(NvU32));
     strcpy(allocDevice.request.versionString, NVIDIA_DRIVER_VERSION);
     allocDevice.request.sliMosaic = NV_FALSE;
     allocDevice.request.tryInferSliMosaicFromExistingDevice = NV_FALSE;
@@ -101,12 +108,12 @@ int main(int argc, char *argv[]) {
 
     int vibrance_index = 0;
 
-    // Iterate on all GPUs (displays) in the system, querying their info
-    for (NvU32 gpu=0; gpu<allocDevice.reply.numDisps; gpu++) {
-        printf("\nGPU %d:\n", gpu);
+    // Iterate on all displays in the system, querying their info
+    for (NvU32 display=0; display<allocDevice.reply.numDisps; display++) {
+        printf("\nDisplay %d:\n", display);
         NvKmsQueryDispParams queryDisp;
         queryDisp.request.deviceHandle = allocDevice.reply.deviceHandle;
-        queryDisp.request.dispHandle   = allocDevice.reply.dispHandles[gpu];
+        queryDisp.request.dispHandle   = allocDevice.reply.dispHandles[display];
         if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_DISP, &queryDisp) < 0) {
             printf(" QueryDisp ioctl failed\n");
             continue;
@@ -119,7 +126,7 @@ int main(int argc, char *argv[]) {
             // Get 'immutable' static data (such as connector type)
             NvKmsQueryConnectorStaticDataParams staticData;
             staticData.request.deviceHandle    = allocDevice.reply.deviceHandle;
-            staticData.request.dispHandle      = allocDevice.reply.dispHandles[gpu];
+            staticData.request.dispHandle      = allocDevice.reply.dispHandles[display];
             staticData.request.connectorHandle = queryDisp.reply.connectorHandles[connector];
             if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_CONNECTOR_STATIC_DATA, &staticData) < 0) {
                 printf("QueryConnector ioctl failed\n");
@@ -129,7 +136,7 @@ int main(int argc, char *argv[]) {
             // Get the 'dynamic' data (is connected?)
             NvKmsQueryDpyDynamicDataParams dynamicData;
             dynamicData.request.deviceHandle    = allocDevice.reply.deviceHandle;
-            dynamicData.request.dispHandle      = allocDevice.reply.dispHandles[gpu];
+            dynamicData.request.dispHandle      = allocDevice.reply.dispHandles[display];
             dynamicData.request.dpyId           = staticData.reply.dpyId;
             if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_DPY_DYNAMIC_DATA, &dynamicData) < 0) {
                 printf("QueryDpy ioctl failed\n");
@@ -161,7 +168,7 @@ int main(int argc, char *argv[]) {
             // Make the request to set digital vibrance for this monitor
             NvKmsSetDpyAttributeParams setDpyAttr;
             setDpyAttr.request.deviceHandle = allocDevice.reply.deviceHandle;
-            setDpyAttr.request.dispHandle   = allocDevice.reply.dispHandles[gpu];
+            setDpyAttr.request.dispHandle   = allocDevice.reply.dispHandles[display];
             setDpyAttr.request.dpyId        = staticData.reply.dpyId;
             setDpyAttr.request.attribute    = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
             setDpyAttr.request.value        = vibrance_level;

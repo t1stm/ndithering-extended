@@ -128,7 +128,7 @@ The values are passed as arguments to `nvibrant`'s binary, matching the **order 
 # if you're using the prebuilt binaries from the releases page!
 $ nvibrant 512 1023
 
-GPU 0:
+Display 0:
 • (0, HDMI) • Set Vibrance (  512) • Success
 • (1, DP  ) • Set Vibrance ( 1023) • Success
 • (2, DP  ) • Set Vibrance (    0) • None
@@ -147,7 +147,7 @@ If a value is not passed for the Nth physical output, nvibrant will default to z
 ```sh
 $ nvibrant 0 0 0 1023
 
-GPU 0:
+Display 0:
 • (0, HDMI) • Set Vibrance (    0) • None
 • (1, DP  ) • Set Vibrance (    0) • None
 • (2, DP  ) • Set Vibrance (    0) • None
@@ -157,19 +157,14 @@ GPU 0:
 
 ### Multiple Displays on Multiple GPUs
 
-If you have multiple displays on multiple GPUs, it _should_ work too:
+If you have multiple devices, specify a `NVIDIA_GPU=N` index:
 
 ```sh
-# Fictional example, feedback welcome!
-$ nvibrant 0 100 512 1023
+$ NVIDIA_GPU=1 nvibrant 0 100
 
-GPU 0:
+Display 0:
 • (0, HDMI) • Set Vibrance (    0) • Success
 • (1, DP  ) • Set Vibrance (  100) • Success
-
-GPU 1:
-• (0, HDMI) • Set Vibrance (  512) • Success
-• (1, DP  ) • Set Vibrance ( 1023) • Success
 ```
 
 ### Automatically Running on Login
