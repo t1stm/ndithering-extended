@@ -31,7 +31,7 @@ const char* NVIDIA_DRIVER_VERSION = []() {
 }();
 
 // Nth GPU index to allocate device handle
-const int NVIDIA_GPU = []() {
+const NvU32 NVIDIA_GPU = []() {
     if (const char* num = getenv("NVIDIA_GPU"))
         return atoi(num);
     return 0;
