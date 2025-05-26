@@ -1,6 +1,15 @@
 <div align="center">
   <h1>nVibrant</h1>
   <p>Configure NVIDIA's Digital Vibrance on Wayland</p>
+  <a href="https://pypi.org/project/nvibrant/"><img src="https://img.shields.io/pypi/v/nvibrant?label=PyPI&color=blue"></a>
+  <a href="https://pypi.org/project/nvibrant/"><img src="https://img.shields.io/pypi/dw/nvibrant?label=Installs&color=blue"></a>
+  <a href="https://github.com/Tremeschin/nVibrant/"><img src="https://img.shields.io/github/v/tag/Tremeschin/nVibrant?label=GitHub&color=orange"></a>
+  <a href="https://github.com/Tremeschin/nVibrant/stargazers/"><img src="https://img.shields.io/github/stars/Tremeschin/nVibrant?label=Stars&style=flat&color=orange"></a>
+  <a href="https://github.com/Tremeschin/nVibrant/releases/"><img src="https://img.shields.io/github/v/release/Tremeschin/nVibrant?label=Release&color=light-green"></a>
+  <a href="https://github.com/Tremeschin/nVibrant/releases/"><img src="https://img.shields.io/github/downloads/Tremeschin/nVibrant/total?label=Downloads&color=light-green"></a>
+  <a href="https://discord.gg/KjqvcYwRHm"><img src="https://img.shields.io/discord/1184696441298485370?label=Discord&style=flat&color=purple"></a>
+  <br>
+  <br>
 </div>
 
 > [!IMPORTANT]
