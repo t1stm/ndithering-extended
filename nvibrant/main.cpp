@@ -38,7 +38,7 @@ const NvU32 NVIDIA_GPU = []() {
 }();
 
 // Wrapper to populate a NvKmsIoctlParams and call ioctl for generic types
-template <typename T> int easy_nvmks_ioctl(int fd, NvU32 cmd, T* data) {
+template <typename T> int easy_nvkms_ioctl(int fd, NvU32 cmd, T* data) {
     NvKmsIoctlParams params;
     params.cmd     = cmd;
     params.size    = sizeof(T);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     allocDevice.request.tryInferSliMosaicFromExistingDevice = NV_FALSE;
     allocDevice.request.no3d = NV_TRUE;
     allocDevice.request.enableConsoleHotplugHandling = NV_FALSE;
-    if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_ALLOC_DEVICE, &allocDevice) < 0) {
+    if (easy_nvkms_ioctl(modeset, NVKMS_IOCTL_ALLOC_DEVICE, &allocDevice) < 0) {
         switch (allocDevice.reply.status) {
             case NVKMS_ALLOC_DEVICE_STATUS_VERSION_MISMATCH:
                 printf("Driver version mismatch, maybe reboot?\n");
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
         NvKmsQueryDispParams queryDisp;
         queryDisp.request.deviceHandle = allocDevice.reply.deviceHandle;
         queryDisp.request.dispHandle   = allocDevice.reply.dispHandles[display];
-        if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_DISP, &queryDisp) < 0) {
+        if (easy_nvkms_ioctl(modeset, NVKMS_IOCTL_QUERY_DISP, &queryDisp) < 0) {
             printf(" QueryDisp ioctl failed\n");
             continue;
         }
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
             staticData.request.deviceHandle    = allocDevice.reply.deviceHandle;
             staticData.request.dispHandle      = allocDevice.reply.dispHandles[display];
             staticData.request.connectorHandle = queryDisp.reply.connectorHandles[connector];
-            if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_CONNECTOR_STATIC_DATA, &staticData) < 0) {
+            if (easy_nvkms_ioctl(modeset, NVKMS_IOCTL_QUERY_CONNECTOR_STATIC_DATA, &staticData) < 0) {
                 printf("QueryConnector ioctl failed\n");
                 continue;
             }
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
             dynamicData.request.deviceHandle    = allocDevice.reply.deviceHandle;
             dynamicData.request.dispHandle      = allocDevice.reply.dispHandles[display];
             dynamicData.request.dpyId           = staticData.reply.dpyId;
-            if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_QUERY_DPY_DYNAMIC_DATA, &dynamicData) < 0) {
+            if (easy_nvkms_ioctl(modeset, NVKMS_IOCTL_QUERY_DPY_DYNAMIC_DATA, &dynamicData) < 0) {
                 printf("QueryDpy ioctl failed\n");
                 continue;
             }
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
             setDpyAttr.request.dpyId        = staticData.reply.dpyId;
             setDpyAttr.request.attribute    = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
             setDpyAttr.request.value        = vibrance_level;
-            if (easy_nvmks_ioctl(modeset, NVKMS_IOCTL_SET_DPY_ATTRIBUTE, &setDpyAttr) < 0) {
+            if (easy_nvkms_ioctl(modeset, NVKMS_IOCTL_SET_DPY_ATTRIBUTE, &setDpyAttr) < 0) {
                 printf("Failed\n");
                 continue;
             }
