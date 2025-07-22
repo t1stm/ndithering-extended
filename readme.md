@@ -24,7 +24,7 @@ This repository uses `nvidia-modeset` and `nvkms` headers found at [nvidia/open-
 
 ## 📦 Installation
 
-There's multiple ways to get nvibrant, do check the [usage](#-usage) and [autostarting](#autostarting) sections afterwards!
+There's multiple ways to get nvibrant, do check the [usage](#-usage) and [autostarting](#-autostarting) sections afterwards!
 
 ### 🔴 Python package
 
@@ -44,7 +44,7 @@ $ uvx nvibrant 512 512
 
 ### 🟡 Package manager
 
-Install from your distro's package manager, it may use the python package managed at system level:
+Install from your distro's package manager, it may use the python package at system level:
 
 <table align="center">
   <tr>
@@ -94,6 +94,8 @@ Install from your distro's package manager, it may use the python package manage
 ### 🟢 Prebuilt binaries
 
 You can download all latest builds made by GitHub Actions in the [Releases](https://github.com/Tremeschin/nVibrant/releases) page as a `.tar.gz` archive, just remember to run `chmod +x nvibrant*` to mark the files as executable after extracting!
+
+- Run them directly as `./nvibrant-linux-amd64-<driver>-v<version>.bin (args)`
 
 > [!NOTE]
 > There is some level of compatibility across different nvibrant and driver versions, as the related code is mostly stable on nvidia's side. Always prefer using the closest, but not newer, version to your driver!
@@ -181,7 +183,7 @@ Display 0:
 
 ### 🟡 Autostarting
 
-For simplicity, a Systemd user service running either `uvx` for the latest releases (in case of driver updates), or directly a prebuilt binary should cover most users, plus it integrates well with [dotfiles](https://github.com/Tremeschin/DotFiles/blob/main/.config/systemd/user/nvibrant.service) repositories!
+For simplicity, a Systemd user service running either `uvx` for the latest releases (in case of driver updates), or a prebuilt binary directly should cover most users, plus it integrates well with [dotfiles](https://github.com/Tremeschin/DotFiles/blob/main/.config/systemd/user/nvibrant.service) repositories!
 
 Create a file at `~/.config/systemd/user/nvibrant.service` with the content:
 
