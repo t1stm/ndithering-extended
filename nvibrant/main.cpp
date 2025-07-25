@@ -37,6 +37,13 @@ const NvU32 NVIDIA_GPU = []() {
     return 0;
 }();
 
+// What attribute to set on the displays
+const char* ATTRIBUTE = []() {
+    if (const char* name = getenv("ATTRIBUTE"))
+        return name;
+    return "vibrance";
+}();
+
 // Wrapper to populate a NvKmsIoctlParams and call ioctl for generic types
 template <typename T> int easy_nvkms_ioctl(int fd, NvU32 cmd, T* data) {
     NvKmsIoctlParams params;
@@ -48,30 +55,25 @@ template <typename T> int easy_nvkms_ioctl(int fd, NvU32 cmd, T* data) {
 
 // ------------------------------------------------------------------------------------------------|
 
-std::vector<int> vibrance;
+std::vector<int> attribute_values;
 
-void read_vibrance_levels(char* argv[], int argc) {
+void read_attribute_values(char* argv[], int argc) {
     for (int i=0; i<(argc - 1); i++) {
-        vibrance.push_back(atoi(argv[i+1]));
-
-        if (vibrance[i] < -1024 || vibrance[i] > 1023) {
-            printf("Vibrance level %d must be between -1024 and 1023\n", vibrance[i]);
-            exit(1);
-        }
+        attribute_values.push_back(atoi(argv[i+1]));
     }
 }
 
 // Default to zero if not given on command line
-int get_vibrance_level(unsigned int index) {
-    if (index < vibrance.size())
-        return vibrance.at(index);
+int get_attribute_value(unsigned int index) {
+    if (index < attribute_values.size())
+        return attribute_values.at(index);
     return 0;
 }
 
 // ------------------------------------------------------------------------------------------------|
 
 int main(int argc, char *argv[]) {
-    read_vibrance_levels(argv, argc);
+    read_attribute_values(argv, argc);
     printf("Driver version: (%s)\n", NVIDIA_DRIVER_VERSION);
 
     // Open the nvidia-modeset file descriptor
@@ -106,7 +108,7 @@ int main(int argc, char *argv[]) {
 
     // ------------------------------------------|
 
-    int vibrance_index = 0;
+    int index = 0;
 
     // Iterate on all displays in the system, querying their info
     for (NvU32 display=0; display<allocDevice.reply.numDisps; display++) {
@@ -121,7 +123,7 @@ int main(int argc, char *argv[]) {
 
         // Iterate on all physical connections of the GPU (literally, hdmi, dp, etc.)
         for (NvU32 connector=0; connector<queryDisp.reply.numConnectors; connector++) {
-            int vibrance_level = get_vibrance_level(vibrance_index++);
+            int value = get_attribute_value(index++);
 
             // Get 'immutable' static data (such as connector type)
             NvKmsQueryConnectorStaticDataParams staticData;
@@ -157,21 +159,33 @@ int main(int argc, char *argv[]) {
                 case NVKMS_CONNECTOR_TYPE_DSI:   printf("DSI "); break;
                 default: break;
             }
-            printf(") • Set Vibrance (%5d) • ", vibrance_level);
+            printf(") • ");
 
-            // Can't set vibrance on disconnected outputs
+            // Make the request to set attribute for this monitor
+            NvKmsSetDpyAttributeParams setDpyAttr;
+            setDpyAttr.request.deviceHandle = allocDevice.reply.deviceHandle;
+            setDpyAttr.request.dispHandle   = allocDevice.reply.dispHandles[display];
+            setDpyAttr.request.dpyId        = staticData.reply.dpyId;
+
+            // Branch on what display attribute to set
+            if (strcmp(ATTRIBUTE, "vibrance") == 0) {
+                setDpyAttr.request.attribute = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
+                setDpyAttr.request.value     = value;
+            } else if (strcmp(ATTRIBUTE, "dithering") == 0) {
+                setDpyAttr.request.attribute = NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING;
+                setDpyAttr.request.value     = value;
+            } else {
+                printf("Unknown attribute '%s' to set\n", ATTRIBUTE);
+                continue;
+            }
+            printf("Set %s (%5d) • ", ATTRIBUTE, value);
+
+            // Can't set attributes on disconnected outputs
             if (!dynamicData.reply.connected) {
                 printf("None\n");
                 continue;
             }
 
-            // Make the request to set digital vibrance for this monitor
-            NvKmsSetDpyAttributeParams setDpyAttr;
-            setDpyAttr.request.deviceHandle = allocDevice.reply.deviceHandle;
-            setDpyAttr.request.dispHandle   = allocDevice.reply.dispHandles[display];
-            setDpyAttr.request.dpyId        = staticData.reply.dpyId;
-            setDpyAttr.request.attribute    = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
-            setDpyAttr.request.value        = vibrance_level;
             if (easy_nvkms_ioctl(modeset, NVKMS_IOCTL_SET_DPY_ATTRIBUTE, &setDpyAttr) < 0) {
                 printf("Failed\n");
                 continue;
