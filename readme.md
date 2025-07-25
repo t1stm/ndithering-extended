@@ -1,12 +1,12 @@
 <div align="center">
-  <h1>nVibrant</h1>
+  <h1>nvibrant</h1>
   <p>Configure NVIDIA's Digital Vibrance on Wayland</p>
   <a href="https://pypi.org/project/nvibrant/"><img src="https://img.shields.io/pypi/v/nvibrant?label=PyPI&color=blue"></a>
   <a href="https://pypi.org/project/nvibrant/"><img src="https://img.shields.io/pypi/dw/nvibrant?label=Installs&color=blue"></a>
-  <a href="https://github.com/Tremeschin/nVibrant/"><img src="https://img.shields.io/github/v/tag/Tremeschin/nVibrant?label=GitHub&color=orange"></a>
-  <a href="https://github.com/Tremeschin/nVibrant/stargazers/"><img src="https://img.shields.io/github/stars/Tremeschin/nVibrant?label=Stars&style=flat&color=orange"></a>
-  <a href="https://github.com/Tremeschin/nVibrant/releases/"><img src="https://img.shields.io/github/v/release/Tremeschin/nVibrant?label=Release&color=light-green"></a>
-  <a href="https://github.com/Tremeschin/nVibrant/releases/"><img src="https://img.shields.io/github/downloads/Tremeschin/nVibrant/total?label=Downloads&color=light-green"></a>
+  <a href="https://github.com/Tremeschin/nvibrant/"><img src="https://img.shields.io/github/v/tag/Tremeschin/nvibrant?label=GitHub&color=orange"></a>
+  <a href="https://github.com/Tremeschin/nvibrant/stargazers/"><img src="https://img.shields.io/github/stars/Tremeschin/nvibrant?label=Stars&style=flat&color=orange"></a>
+  <a href="https://github.com/Tremeschin/nvibrant/releases/"><img src="https://img.shields.io/github/v/release/Tremeschin/nvibrant?label=Release&color=light-green"></a>
+  <a href="https://github.com/Tremeschin/nvibrant/releases/"><img src="https://img.shields.io/github/downloads/Tremeschin/nvibrant/total?label=Downloads&color=light-green"></a>
   <a href="https://discord.gg/KjqvcYwRHm"><img src="https://img.shields.io/discord/1184696441298485370?label=Discord&style=flat&color=purple"></a>
   <br>
   <br>
@@ -28,7 +28,7 @@ There's multiple ways to get nvibrant, do check the [usage](#-usage) and [autost
 
 ### 🔴 Python package
 
-This utility [finds the best](https://github.com/Tremeschin/nVibrant/blob/4d9cc065f13c8110e5dd22368715ff07299b8192/nvibrant/__init__.py#L73-L95) nvibrant binary for your driver, already bundled in the package for all known [tags](https://github.com/NVIDIA/open-gpu-kernel-modules/tags) at release time. Simply install the [`pypi/nvibrant`](https://pypi.org/project/nvibrant/) package, where [`uvx`](https://docs.astral.sh/uv/) • [`tools`](https://docs.astral.sh/uv/concepts/tools/) usage is recommended:
+This utility [finds the best](https://github.com/Tremeschin/nvibrant/blob/4d9cc065f13c8110e5dd22368715ff07299b8192/nvibrant/__init__.py#L73-L95) nvibrant binary for your driver, already bundled in the package for all known [tags](https://github.com/NVIDIA/open-gpu-kernel-modules/tags) at release time. Simply install the [`pypi/nvibrant`](https://pypi.org/project/nvibrant/) package, where [`uvx`](https://docs.astral.sh/uv/) • [`tools`](https://docs.astral.sh/uv/concepts/tools/) usage is recommended:
 
 ```sh
 # With standard python tooling
@@ -93,7 +93,7 @@ Install from your distro's package manager, it may use the python package at sys
 
 ### 🟢 Prebuilt binaries
 
-You can download all latest builds made by GitHub Actions in the [Releases](https://github.com/Tremeschin/nVibrant/releases) page as a `.tar.gz` archive, just remember to run `chmod +x nvibrant*` to mark the files as executable after extracting!
+You can download all latest builds made by GitHub Actions in the [Releases](https://github.com/Tremeschin/nvibrant/releases) page as a `.tar.gz` archive, just remember to run `chmod +x nvibrant*` to mark the files as executable after extracting!
 
 - Run them directly as `./nvibrant-linux-amd64-<driver>-v<version>.bin (args)`
 
@@ -109,7 +109,7 @@ You can download all latest builds made by GitHub Actions in the [Releases](http
 
 ```sh
 # Clone the code alongside nvidia kernel headers
-git clone https://github.com/Tremeschin/nVibrant && cd nVibrant
+git clone https://github.com/Tremeschin/nvibrant && cd nvibrant
 git submodule update --init --recursive
 ```
 
@@ -189,7 +189,7 @@ Create a file at `~/.config/systemd/user/nvibrant.service` with the content:
 
 ```ini
 [Unit]
-Description=Apply nVibrant
+Description=Apply nvibrant
 After=graphical.target
 
 [Service]
@@ -207,13 +207,13 @@ Enable the service with `systemctl --user enable --now nvibrant.service`
 
 ### 🟢 Common Issues
 
-Please [report](https://github.com/Tremeschin/nVibrant/issues) unknown or unlisted issues to be added here!
+Please [report](https://github.com/Tremeschin/nvibrant/issues) unknown or unlisted issues to be added here!
 
 - If you get a _"Driver version mismatch"_ or `ioctl` errors, maybe try rebooting (if you haven't) since the last driver update. Otherwise, you can force the version with `NVIDIA_DRIVER_VERSION=x.y.z`. It must match what `/dev/nvidia-modeset` expects and is currently loaded in the kernel.
 
 - Ensure you have the `nvidia-modeset` kernel module loaded, as it is required for the ioctl calls to work. You can check this with `lsmod | grep nvidia`. Else, add it to your kernel boot parameters.
 
-- It's possible that nVibrant may fail on future or older drivers due to differences between the internal structs and enums in the latest `nvkms` headers. Please report any issues you encounter!
+- It's possible that nvibrant may fail on future or older drivers due to differences between the internal structs and enums in the latest `nvkms` headers. Please report any issues you encounter!
 
 <sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 16 hours to figure out and implement :)</sup>
 
