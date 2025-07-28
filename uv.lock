@@ -4,10 +4,11 @@ requires-python = ">=3.9"
 
 [[package]]
 name = "meson"
-version = "1.7.2"
+version = "1.8.2"
 source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/58/fedcfbc958585381281f72b4866288f04c3f109a6a8757e0a529af8aaa79/meson-1.8.2.tar.gz", hash = "sha256:c105816d8158c76b72adcb9ff60297719096da7d07f6b1f000fd8c013cd387af", size = 2335538, upload-time = "2025-06-09T20:43:25.172Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/2b/46bda4ef5a7ae4135dbfe27fc0368c44e5a349a897a54fdf2cedb8dcb66e/meson-1.7.2-py3-none-any.whl", hash = "sha256:82c6818dc81743c96de3a458f06175776ebfde4081195ea31ea6971838f25e38", size = 991596, upload-time = "2025-04-04T16:08:59.557Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/6e/b9dfeac98dd508f88bcaff134ee0bf5e602caf3ccb5a12b5dd9466206df1/meson-1.8.2-py3-none-any.whl", hash = "sha256:274b49dbe26e00c9a591442dd30f4ae9da8ce11ce53d0f4682cd10a45d50f6fd", size = 1013517, upload-time = "2025-06-09T20:43:21.987Z" },
 ]
 
 [[package]]
@@ -52,7 +53,7 @@ requires-dist = [{ name = "packaging" }]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "meson", specifier = "~=1.7.2" },
+    { name = "meson", specifier = "~=1.8.2" },
     { name = "ninja", specifier = "~=1.11.1.4" },
 ]
 

@@ -53,27 +53,14 @@ template <typename T> int easy_nvkms_ioctl(int fd, NvU32 cmd, T* data) {
     return ioctl(fd, NVKMS_IOCTL_IOWR, &params);
 }
 
-// ------------------------------------------------------------------------------------------------|
-
-std::vector<int> attribute_values;
-
-void read_attribute_values(char* argv[], int argc) {
-    for (int i=0; i<(argc - 1); i++) {
-        attribute_values.push_back(atoi(argv[i+1]));
-    }
-}
-
-// Default to zero if not given on command line
-int get_attribute_value(unsigned int index) {
-    if (index < attribute_values.size())
-        return attribute_values.at(index);
-    return 0;
+// Smart parse, limit, safe default an integer from argv at a given index
+int get_int(int argc, char* argv[], int index, int min, int max, int initial) {
+    return std::max(min, std::min(max, (index < argc) ? atoi(argv[index]) : initial));
 }
 
 // ------------------------------------------------------------------------------------------------|
 
 int main(int argc, char *argv[]) {
-    read_attribute_values(argv, argc);
     printf("Driver version: (%s)\n", NVIDIA_DRIVER_VERSION);
 
     // Open the nvidia-modeset file descriptor
@@ -123,7 +110,7 @@ int main(int argc, char *argv[]) {
 
         // Iterate on all physical connections of the GPU (literally, hdmi, dp, etc.)
         for (NvU32 connector=0; connector<queryDisp.reply.numConnectors; connector++) {
-            int value = get_attribute_value(index++);
+            index++;
 
             // Get 'immutable' static data (such as connector type)
             NvKmsQueryConnectorStaticDataParams staticData;
@@ -170,15 +157,15 @@ int main(int argc, char *argv[]) {
             // Branch on what display attribute to set
             if (strcmp(ATTRIBUTE, "vibrance") == 0) {
                 setDpyAttr.request.attribute = NV_KMS_DPY_ATTRIBUTE_DIGITAL_VIBRANCE;
-                setDpyAttr.request.value     = value;
+                setDpyAttr.request.value     = get_int(argc, argv, index, -1024, 1023, 0);
             } else if (strcmp(ATTRIBUTE, "dithering") == 0) {
                 setDpyAttr.request.attribute = NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING;
-                setDpyAttr.request.value     = value;
+                setDpyAttr.request.value     = get_int(argc, argv, index, 0, 2, 2);
             } else {
                 printf("Unknown attribute '%s' to set\n", ATTRIBUTE);
                 continue;
             }
-            printf("Set %s (%5d) • ", ATTRIBUTE, value);
+            printf("Set %s (%5d) • ", ATTRIBUTE, setDpyAttr.request.value);
 
             // Can't set attributes on disconnected outputs
             if (!dynamicData.reply.connected) {
@@ -192,6 +179,14 @@ int main(int argc, char *argv[]) {
             }
             printf("Success\n");
         }
+    }
+
+    // Deallocate device just in case it's not gc-ed on the driver side
+    struct NvKmsFreeDeviceParams freeDevice;
+    freeDevice.request.deviceHandle = allocDevice.reply.deviceHandle;
+    if (easy_nvkms_ioctl(modeset, NVKMS_IOCTL_FREE_DEVICE, &freeDevice) < 0) {
+        printf("Failed to free device handle\n");
+        return 1;
     }
 
     return 0;

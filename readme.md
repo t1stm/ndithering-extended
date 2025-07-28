@@ -22,6 +22,8 @@ This repository uses `nvidia-modeset` and `nvkms` headers found at [nvidia/open-
 
 **Note**: A future, and intended way, will be through [NVML](https://developer.nvidia.com/management-library-nvml), as evident by some [nvidia-settings](https://github.com/NVIDIA/nvidia-settings/blob/6c755d9304bf4761f2b131f0687f0ebd1fcf7cd4/src/libXNVCtrlAttributes/NvCtrlAttributesNvml.c#L1235) comments
 
+<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 22 hours to figure out, implement, write a readme, make it convenient 🫠</sup>
+
 ## 📦 Installation
 
 There's multiple ways to get nvibrant, do check the [usage](#-usage) and [autostarting](#-autostarting) sections afterwards!
@@ -169,7 +171,7 @@ Display 0:
 • (4, DP  ) • Set Vibrance (    0) • None
 ```
 
-### 🔴 Multiple Displays on Multiple GPUs
+### 🔴 Multiple GPUs
 
 If you have multiple devices, specify a `NVIDIA_GPU=N` index:
 
@@ -205,7 +207,23 @@ Enable the service with `systemctl --user enable --now nvibrant.service`
 - You can also pin it to a specific version with `uvx nvibrant==1.0.6 (args)` to have more control
 - Can also have a `~/.local/bin/nvibrant` and use `ExecStart=%h/.local/bin/nvibrant (args)`
 
-### 🟢 Common Issues
+### 🟢 Dithering
+
+Some users have reported issues with dithering causing flickering or artifacts on their displays [(1)](https://github.com/Tremeschin/nvibrant/issues/18) [(2)](https://www.reddit.com/r/linux_gaming/comments/1jmsva0/comment/mkehyuk/), which also lacks a Wayland option to disable in `nvidia-settings`. Fear not, you can change it with nvibrant too!
+
+- **Run**: `ATTRIBUTE=dithering uvx nvibrant` to disable it on all displays (v1.1+)
+
+Minor quirk, here's the values meanings, default is 2:
+
+```cpp
+enum NvKmsDpyAttributeRequestedDitheringValue {
+    ...AUTO = 0,
+    ...ENABLED = 1,
+    ...DISABLED = 2,
+};
+```
+
+### 🔵 Common Issues
 
 Please [report](https://github.com/Tremeschin/nvibrant/issues) unknown or unlisted issues to be added here!
 
@@ -215,13 +233,10 @@ Please [report](https://github.com/Tremeschin/nvibrant/issues) unknown or unlist
 
 - It's possible that nvibrant may fail on future or older drivers due to differences between the internal structs and enums in the latest `nvkms` headers. Please report any issues you encounter!
 
-<sup><b>❤️ Consider</b> [supporting](https://github.com/sponsors/Tremeschin/) my work, this took 16 hours to figure out and implement :)</sup>
-
 ## ⭐️ Future Work
 
 Integrating this work directly in [libvibrant](https://github.com/libvibrant/) would be the ideal solution, although matching the nvidia driver version could be annoying for a generalized solution. Feel free to base off this code for an upstream solution and PR, in the meantime, here's some local improvements that could be made:
 
-- Add support for other Display Attributes (Dithering et al.)
 - Make an actual CLI interface with `--help`, `--version`, etc.
 - I am _probably_ not doing safe-C code or mallocs right :^)
 
