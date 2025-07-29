@@ -28,6 +28,7 @@ This repository uses `nvidia-modeset` and `nvkms` headers found at [nvidia/open-
 
 There's multiple ways to get nvibrant, do check the [usage](#-usage) and [autostarting](#-autostarting) sections afterwards!
 
+
 ### 🔴 Python package
 
 This utility [finds the best](https://github.com/Tremeschin/nvibrant/blob/4d9cc065f13c8110e5dd22368715ff07299b8192/nvibrant/__init__.py#L73-L95) nvibrant binary for your driver, already bundled in the package for all known [tags](https://github.com/NVIDIA/open-gpu-kernel-modules/tags) at release time. Simply install the [`pypi/nvibrant`](https://pypi.org/project/nvibrant/) package, where [`uvx`](https://docs.astral.sh/uv/) • [`tools`](https://docs.astral.sh/uv/concepts/tools/) usage is recommended:
@@ -39,6 +40,13 @@ $ python3 -m nvibrant 512 512
 
 # Always latest, simpler
 $ uvx nvibrant 512 512
+```
+
+For more stability, pin to a specific version and only update for new features or newer drivers support:
+
+```sh
+$ python3 -m pip install nvibrant==1.1.0
+$ uvx nvibrant==1.1.0 (args)
 ```
 
 <sup><b>Note:</b> This package is an official release channel for nvibrant</sup>
@@ -107,10 +115,10 @@ You can download all latest builds made by GitHub Actions in the [Releases](http
 
 ### 🔵 Build it yourself
 
-**Requirements**: Have `git`, `gcc` compilers; `meson` and `ninja` _(too)_ are already `python3` dependencies
+**Requirements**: Have `git`, `gcc` compilers; `meson` and `ninja` are included on `python` dependencies
 
 ```sh
-# Clone the code alongside nvidia kernel headers
+# Clone the code alongside open-gpu-kernel-modules
 git clone https://github.com/Tremeschin/nvibrant && cd nvibrant
 git submodule update --init --recursive
 ```
@@ -129,14 +137,10 @@ $ ./build/nvibrant 512 512
 Or build them all for the python utility to use:
 
 ```sh
-# Installs dependencies on the user's site-packages
+# Installs on the user's site-packages (editable)
 $ python3 -m pip install -r requirements.txt
 $ python3 ./nvibrant/build.py
-
-# Have it on path or run directly
-$ ~/.local/bin/nvibrant 512 512
 ```
-
 
 ## 🚀 Usage
 
@@ -204,7 +208,7 @@ WantedBy=default.target
 
 Enable the service with `systemctl --user enable --now nvibrant.service`
 
-- You can also pin it to a specific version with `uvx nvibrant==1.0.6 (args)` to have more control
+- You can also pin it to a specific version with `uvx nvibrant==1.1.0 (args)` to have more control
 - Can also have a `~/.local/bin/nvibrant` and use `ExecStart=%h/.local/bin/nvibrant (args)`
 
 ### 🟢 Dithering
@@ -238,6 +242,6 @@ Please [report](https://github.com/Tremeschin/nvibrant/issues) unknown or unlist
 Integrating this work directly in [libvibrant](https://github.com/libvibrant/) would be the ideal solution, although matching the nvidia driver version could be annoying for a generalized solution. Feel free to base off this code for an upstream solution and PR, in the meantime, here's some local improvements that could be made:
 
 - Make an actual CLI interface with `--help`, `--version`, etc.
-- I am _probably_ not doing safe-C code or mallocs right :^)
+- I am _probably_ not doing safe-C code or types right
 
 Contributions are welcome if you are more C/C++ savy than me! 🙂
