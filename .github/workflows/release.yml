@@ -26,7 +26,7 @@ jobs:
         run: uv run nvibrant/build.py
 
       - name: Build wheel
-        run: uv build --wheel -o dist
+        run: uv build --wheel
 
       - name: Publish to PyPI
         run: uv publish dist/*.whl

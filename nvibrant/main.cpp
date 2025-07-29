@@ -54,8 +54,8 @@ template <typename T> int easy_nvkms_ioctl(int fd, NvU32 cmd, T* data) {
 }
 
 // Smart parse, limit, safe default an integer from argv at a given index
-int get_int(int argc, char* argv[], int index, int min, int max, int initial) {
-    return std::max(min, std::min(max, (index < argc) ? atoi(argv[index]) : initial));
+int get_int(int argc, char* argv[], int index, int min, int max, int fallback) {
+    return std::max(min, std::min(max, (index < argc) ? atoi(argv[index]) : fallback));
 }
 
 // ------------------------------------------------------------------------------------------------|
@@ -70,8 +70,6 @@ int main(int argc, char *argv[]) {
         printf("• Perhaps 'nvidia_drm.modeset=1' kernel parameter is missing?\n");
         return 1;
     }
-
-    // ------------------------------------------|
 
     // Initialize nvkms to get a deviceHandle, dispHandle, etc.
     struct NvKmsAllocDeviceParams allocDevice;
@@ -93,8 +91,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // ------------------------------------------|
-
+    // Current Nth target monitor
     int index = 0;
 
     // Iterate on all displays in the system, querying their info
@@ -165,7 +162,7 @@ int main(int argc, char *argv[]) {
                 printf("Unknown attribute '%s' to set\n", ATTRIBUTE);
                 continue;
             }
-            printf("Set %s (%5d) • ", ATTRIBUTE, setDpyAttr.request.value);
+            printf("Set %s (%5lld) • ", ATTRIBUTE, setDpyAttr.request.value);
 
             // Can't set attributes on disconnected outputs
             if (!dynamicData.reply.connected) {
