@@ -158,6 +158,18 @@ int main(int argc, char *argv[]) {
             } else if (strcmp(ATTRIBUTE, "dithering") == 0) {
                 setDpyAttr.request.attribute = NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING;
                 setDpyAttr.request.value     = get_int(argc, argv, index, 0, 2, 2);
+            } else if (strcmp(ATTRIBUTE, "dithering_mode") == 0) {
+                setDpyAttr.request.attribute = NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_MODE;
+                setDpyAttr.request.value     = get_int(argc, argv, index,
+                    NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_MODE_AUTO,
+                    NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_MODE_TEMPORAL,
+                    NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_MODE_AUTO);
+            } else if (strcmp(ATTRIBUTE, "dithering_depth") == 0) {
+                setDpyAttr.request.attribute = NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_DEPTH;
+                setDpyAttr.request.value     = get_int(argc, argv, index,
+                    NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_DEPTH_AUTO,
+                    NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_DEPTH_8_BITS,
+                    NV_KMS_DPY_ATTRIBUTE_REQUESTED_DITHERING_DEPTH_AUTO);
             } else {
                 printf("Unknown attribute '%s' to set\n", ATTRIBUTE);
                 continue;
